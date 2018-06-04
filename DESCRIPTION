@@ -1,0 +1,9 @@
+Package: gsfisher
+Title: Geneset Fisher
+Version: 0.1
+Date: 2018-06-04
+Author: Steve Sansom
+Maintainer: Steve Sansom <stephen.sansom@kennedy.ox.ac.uk>
+Description: A package for performing basic geneset over-enrichment analysis on multiple sets of genes of interest (such as clusters from single-cell RNA-seq analysis).
+License: GPL-2
+RoxygenNote: 6.0.1
