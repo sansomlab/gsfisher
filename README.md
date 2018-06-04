@@ -1,0 +1,9 @@
+# Geneset Fisher
+
+R package for naive geneset over-enrichment testing.
+
+Simple Fisher tests are used.
+
+Results tables include odds-ratios and gene symbols.
+
+Includes functions for reading and writing GMT files and for translating GMT files from human to mouse.
