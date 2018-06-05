@@ -1,7 +1,7 @@
 #' Draw a heatmap of enriched genesets in all samples
 #' @param results_table A gofisher multi-sample results table 
 #' @param max_rows The maximum number of rows to show in the heatmap
-#' @param adjust_pvalues Adjust p-values across all clusters
+#' @param adjust_pvalues Adjust p-values across all sample
 #' @param pvalue_threshold P-value threshold
 #' @param maxl  The maximum length for geneset names
 #' @param show_common Show genesets enriched in all samples.
@@ -14,28 +14,33 @@ sampleEnrichmentHeatmap <- function(results_table,
                                    pvalue_threshold=0.1,
                                    maxl=45,
                                    show_common=TRUE,
-                                   sample_id_col="cluster")
+                                   sample_id_col="cluster",
+                                   title="enriched genesets")
 {
+  stopifnot(require(reshape2))
+  stopifnot(require(gplots))
   
-  total_n_clust <- length(unique(results_table$cluster))
+  total_n_sample <- length(unique(results_table$sample))
   
-  
-  ## compute FDR accross all clusters (before filtering!)
-  results_table$p.adj <- p.adjust(contents$p.val, method=padjust_method)
-  
+
   ## Filter the genesets
-  results_table <- results_table[results_table$n_fg >= min_genes,]
+  results_table <- results_table[results_table$n_fg >= min_genes 
+                                 & !is.na(results_table$n_fg),]
   
   if(adjust_pvalues)
   {
-    results_table <- results_table[results_table$p.adj < pvalue_threshold,]
+    ## compute FDR accross all samples
+    results_table$p.adj <- p.adjust(results_table$p.val, method=padjust_method)
+    results_table <- results_table[results_table$p.adj < pvalue_threshold
+                                   & !is.na(results_table$p.adj),]
   } else {
-    results_table <- results_table[results_table$p.val < pvalue_threshold,]
+    results_table <- results_table[results_table$p.val < pvalue_threshold
+                                   & !is.na(results_table$p.val),]
   }
   
   if(!show_common) 
   {
-    results_table <- results_table[results_table$n_clust < total_n_clust,]
+    results_table <- results_table[results_table$n_sample < total_n_sample,]
   }
   
   ## Check for genesets after filtering
@@ -44,26 +49,26 @@ sampleEnrichmentHeatmap <- function(results_table,
     stop("No genesets pass filters")
   }
     
-  ## Compute the number of clusters in which the geneset is enriched
+  ## Compute the number of sample in which the geneset is enriched
   id_tab <- table(results_table$geneset_id)
-  results_table$n_clust <- id_tab[results_table$geneset_id]
+  results_table$n_sample <- id_tab[results_table$geneset_id]
   
   ## Sort by p value
-  results_table <- results_table[order(results_table$cluster,results_table$p.val),]
+  results_table <- results_table[order(results_table[[sample_id_col]],results_table$p.val),]
   
   # set the maximum number of output rows
-  ntake <- round(max_rows/total_n_clust)
+  ntake <- round(max_rows/total_n_sample)
   
   # Identify the genesets to show in the heatmap
   hmap_genesets <- c()
   
-  for(clust in unique(as.character(results_table[[sample_id_col]])))
+  for(sample in unique(as.character(results_table[[sample_id_col]])))
   {
   
-    temp <- results_table[results_table[[sample_id_col]]==clust,]
+    temp <- results_table[results_table[[sample_id_col]]==sample,]
     nrows <- nrow(temp)
     if(nrows==0) {
-      print(paste0("no enriched genesets found for cluster: ",clust))
+      print(paste0("no enriched genesets found for sample: ",sample))
       next }
   
     temp <- temp[1:min(nrows,ntake),]
@@ -76,29 +81,28 @@ sampleEnrichmentHeatmap <- function(results_table,
     results_table$description <- results_table$geneset_id 
   }
   
-  take <- c("geneset_id", "description", "odds.ratio", "cluster")
+  take <- c("geneset_id", "description", "odds.ratio", "sample")
   temp <- results_table[results_table$geneset_id %in% unique(hmap_genesets),take]
   xx <- temp$description
   xx[is.na(xx)] <- "n/a"
   xx[nchar(xx)>maxl] <- paste0(strtrim(xx[nchar(xx)>maxl],maxl),"'")
   temp$description <- xx
-  
   lu <- unique(temp[,c("geneset_id","description")])
   lu$description <- make.unique(lu$description)
   rownames(lu) <- lu$geneset_id
   
-  dd <- dcast(temp, geneset_id~cluster, value.var="odds.ratio")
+  dd <- dcast(temp, geneset_id~get(sample_id_col), value.var="odds.ratio")
   rownames(dd) <- lu[dd$geneset_id,"description"]
   dd$geneset_id <- NULL
   
-  ## deal with missing clusters
-  for(clust in as.character(c(first:last)))
+  ## deal with missing sample
+  for(sample in as.character(unique(temp[[sample_id_col]])))
   {
-    if(!clust %in% colnames(dd))
+    if(!sample %in% colnames(dd))
     {
       print("adding column")
-      print(clust)
-      dd[[clust]] <- 0
+      print(sample)
+      dd[[sample]] <- 0
     }
   }
   
@@ -143,10 +147,9 @@ sampleEnrichmentHeatmap <- function(results_table,
               lhei = c(1,4),
               key.xlab = "row-scaled\nodds-ratio",
               key.ylab = "",
-              main=paste(geneset,"pathways",sep=" "),
-              xlab=opt[[sample_id_col]]type,
+              main=title,
+              xlab=sample_id_col,
               cexRow = 0.85,
               cexCol = 1.3
     )
 }
-  
