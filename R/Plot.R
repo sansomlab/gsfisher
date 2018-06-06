@@ -1,12 +1,12 @@
 #' Draw a heatmap of enriched genesets in all samples
-#' @param results_table A gofisher multi-sample results table 
+#' @param results_table A gofisher multi-sample results table
 #' @param max_rows The maximum number of rows to show in the heatmap
 #' @param adjust_pvalues Adjust p-values across all sample
 #' @param pvalue_threshold P-value threshold
 #' @param maxl  The maximum length for geneset names
 #' @param show_common Show genesets enriched in all samples.
 #' @param sample_id_col The column of the results_table containing the sample id
-sampleEnrichmentHeatmap <- function(results_table, 
+sampleEnrichmentHeatmap <- function(results_table,
                                    max_rows=50,
                                    min_genes=2,
                                    adjust_pvalues=FALSE,
@@ -19,14 +19,13 @@ sampleEnrichmentHeatmap <- function(results_table,
 {
   stopifnot(require(reshape2))
   stopifnot(require(gplots))
-  
-  total_n_sample <- length(unique(results_table$sample))
-  
+
+  total_n_sample <- length(unique(results_table[[sample_id_col]]))
 
   ## Filter the genesets
-  results_table <- results_table[results_table$n_fg >= min_genes 
+  results_table <- results_table[results_table$n_fg >= min_genes
                                  & !is.na(results_table$n_fg),]
-  
+
   if(adjust_pvalues)
   {
     ## compute FDR accross all samples
@@ -38,50 +37,50 @@ sampleEnrichmentHeatmap <- function(results_table,
                                    & !is.na(results_table$p.val),]
   }
   
-  if(!show_common) 
+  if(!show_common)
   {
     results_table <- results_table[results_table$n_sample < total_n_sample,]
   }
-  
+
   ## Check for genesets after filtering
   if(nrow(results_table)==0)
   {
     stop("No genesets pass filters")
   }
-    
+
   ## Compute the number of sample in which the geneset is enriched
   id_tab <- table(results_table$geneset_id)
   results_table$n_sample <- id_tab[results_table$geneset_id]
-  
+
   ## Sort by p value
   results_table <- results_table[order(results_table[[sample_id_col]],results_table$p.val),]
-  
+
   # set the maximum number of output rows
   ntake <- round(max_rows/total_n_sample)
-  
+
   # Identify the genesets to show in the heatmap
   hmap_genesets <- c()
-  
+
   for(sample in unique(as.character(results_table[[sample_id_col]])))
   {
-  
+
     temp <- results_table[results_table[[sample_id_col]]==sample,]
     nrows <- nrow(temp)
     if(nrows==0) {
       print(paste0("no enriched genesets found for sample: ",sample))
       next }
-  
+
     temp <- temp[1:min(nrows,ntake),]
-  
+
     hmap_genesets <- c(hmap_genesets,temp$geneset_id)
   }
 
-  if(!"description" %in% colnames(results_table)) 
-  { 
-    results_table$description <- results_table$geneset_id 
+  if(!"description" %in% colnames(results_table))
+  {
+    results_table$description <- results_table$geneset_id
   }
-  
-  take <- c("geneset_id", "description", "odds.ratio", "sample")
+
+  take <- c("geneset_id", "description", "odds.ratio", sample_id_col)
   temp <- results_table[results_table$geneset_id %in% unique(hmap_genesets),take]
   xx <- temp$description
   xx[is.na(xx)] <- "n/a"
@@ -90,11 +89,11 @@ sampleEnrichmentHeatmap <- function(results_table,
   lu <- unique(temp[,c("geneset_id","description")])
   lu$description <- make.unique(lu$description)
   rownames(lu) <- lu$geneset_id
-  
+
   dd <- dcast(temp, geneset_id~get(sample_id_col), value.var="odds.ratio")
   rownames(dd) <- lu[dd$geneset_id,"description"]
   dd$geneset_id <- NULL
-  
+
   ## deal with missing sample
   for(sample in as.character(unique(temp[[sample_id_col]])))
   {
@@ -105,38 +104,55 @@ sampleEnrichmentHeatmap <- function(results_table,
       dd[[sample]] <- 0
     }
   }
-  
+
   ## convert to matrix and deal with missing values
   dd <- as.matrix(dd)
   dd[is.na(dd)] <- 0
   dd[is.infinite(dd)] <- max(dd[!is.infinite(dd)])
-  
+
   m <- dd
-  
+
+  scale="row"
+
+  ## heatmap.2 requires a matrix with a least 2 rows and 2 columns.
+
+  if(nrow(m)==1)
+    {
+      warning("Warning, matrix only has one row. It will be duplicated so that a heatmap can be made.")
+      m <- rbind(m,m)
+    }
+
+  if(ncol(m)==1)
+    {
+      warning("Warning, matrix only has one column. It will be duplicated so that a heatmap can be made.")
+      m <- cbind(m,m)
+      scale="none"
+    }
+
   ramp_colors <- c("blue","darkblue","black","yellow","red")
-  
+
   nbreaks=50 # number of graduations
   rm <- range(m)
   rm <- c(-2.5,2.5)
-  breaks=seq(rm[1],rm[2],diff(rm)/nbreaks) 
+  breaks=seq(rm[1],rm[2],diff(rm)/nbreaks)
+
   colors=colorRampPalette(ramp_colors)(nbreaks)
-  
-  if(nrow(m)==1)
-    {
-      print("Warning, matrix only has one row. It will be duplicated so that a heatmap can be made.")
-      m <- rbind(m,m)
-    }
-    
+
+
+
+
+
+
     ## enforce column order
     mcols <- colnames(m)
     mcols <- mcols[order(mcols)]
     m <- m[,mcols]
-    
+
     par(cex.main=0.7)
     heatmap.2(m,
               col=colors,
               breaks=breaks,
-              scale="row",
+              scale=scale,
               Colv=F,
               mar=c(4,30),
               trace="none",
