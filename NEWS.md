@@ -7,7 +7,6 @@
     rely on a working internet connection (e.g., `biomaRt`).
 * Added small GMT file for testing.
 * Renamed `translateGMT2mouse` to `mapENTREZhuman2mouse`.
-* Renamed `fetchAnnotation` to `fetchAnnotations`.
 * Split functions into multiple files by topic.
 * Latest Ensembl `version` selected by `NULL`,
     consistently with `biomaRt::useEnsembl`.
