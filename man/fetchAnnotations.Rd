@@ -32,3 +32,6 @@ ann_hs <- fetchAnnotations(species="hs")
 ann_mm <- fetchAnnotations(species="mm")
 }
 }
+\author{
+Steve Sansom
+}

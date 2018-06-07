@@ -21,6 +21,8 @@
 #'
 #' @importFrom biomaRt useEnsembl getBM
 #'
+#' @author Steve Sansom
+#'
 #' @examples
 #' \dontrun{
 #' ann_hs <- fetchAnnotations(species="hs")
@@ -59,6 +61,8 @@ fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
 #' @importFrom limma getGeneKEGGLinks getKEGGPathwayNames
 #'
 #' @export
+#'
+#' @author Steve Sansom
 #'
 #' @examples
 #' \dontrun{
@@ -114,8 +118,10 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 #' @export
 #'
 #' @seealso
-#' \code{\link[qusage]{read.gmt}}
+#' \code{\link{read.gmt}}
 #' \code{\link[biomaRt]{useEnsembl}}
+#'
+#' @author Steve Sansom
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")

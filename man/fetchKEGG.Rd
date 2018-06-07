@@ -21,3 +21,6 @@ kegg_hs <- fetchKEGG(species="hs")
 kegg_mm <- fetchKEGG(species="mm")
 }
 }
+\author{
+Steve Sansom
+}

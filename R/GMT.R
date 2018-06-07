@@ -1,5 +1,5 @@
 
-#' Read genesets from a GMT file
+#' Read gene sets from a GMT file
 #'
 #' @param filepath The location of the GMT file.
 #'
@@ -10,6 +10,8 @@
 #'
 #' @seealso
 #' \code{\link[qusage]{read.gmt}}
+#'
+#' @author Steve Sansom
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
@@ -34,14 +36,24 @@ readGMT <- function(filepath) {
     return(genesets)
 }
 
-
-
-#' Write genesets to a GMT file
+#' Write gene sets to a GMT file
 #'
-#' @param geneset A geneset list (e.g. from readGMT)
-#' @param outfile The name of the outfile
+#' @param geneset A list of gene sets  (e.g. from \code{qusage::read.gmt}).
+#' @param outfile Path to the output file.
+#'
+#' @seealso
+#' \code{\link{read.gmt}}
 #'
 #' @export
+#'
+#' @author Steve Sansom
+#'
+#' @examples
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- read.gmt(gmtFile)
+#'
+#' outfile <- tempfile()
+#' writeGMT(ann_gmt, outfile)
 writeGMT <- function(geneset, outfile) {
     conn <- file(outfile)
 

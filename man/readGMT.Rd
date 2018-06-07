@@ -2,7 +2,7 @@
 % Please edit documentation in R/GMT.R
 \name{readGMT}
 \alias{readGMT}
-\title{Read genesets from a GMT file}
+\title{Read gene sets from a GMT file}
 \usage{
 readGMT(filepath)
 }
@@ -10,7 +10,7 @@ readGMT(filepath)
 \item{filepath}{The location of the GMT file.}
 }
 \description{
-Read genesets from a GMT file
+Read gene sets from a GMT file
 }
 \details{
 Deprecated. Use \code{qusage::read.gmt} instead.
@@ -21,4 +21,7 @@ ann_gmt <- readGMT(gmtFile)
 }
 \seealso{
 \code{\link[qusage]{read.gmt}}
+}
+\author{
+Steve Sansom
 }

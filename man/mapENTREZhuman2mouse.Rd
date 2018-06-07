@@ -25,6 +25,9 @@ mapENTREZhuman2mouse(ann_gmt, ensembl_version=NULL)
 }
 }
 \seealso{
-\code{\link[qusage]{read.gmt}}
+\code{\link{read.gmt}}
 \code{\link[biomaRt]{useEnsembl}}
+}
+\author{
+Steve Sansom
 }

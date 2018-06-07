@@ -2,15 +2,28 @@
 % Please edit documentation in R/GMT.R
 \name{writeGMT}
 \alias{writeGMT}
-\title{Write genesets to a GMT file}
+\title{Write gene sets to a GMT file}
 \usage{
 writeGMT(geneset, outfile)
 }
 \arguments{
-\item{geneset}{A geneset list (e.g. from readGMT)}
+\item{geneset}{A list of gene sets  (e.g. from \code{qusage::read.gmt}).}
 
-\item{outfile}{The name of the outfile}
+\item{outfile}{Path to the output file.}
 }
 \description{
-Write genesets to a GMT file
+Write gene sets to a GMT file
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- read.gmt(gmtFile)
+
+outfile <- tempfile()
+writeGMT(ann_gmt, outfile)
+}
+\seealso{
+\code{\link{read.gmt}}
+}
+\author{
+Steve Sansom
 }

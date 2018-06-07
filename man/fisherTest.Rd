@@ -25,7 +25,7 @@ Perform a single Fisher test for gene set enrichement
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- readGMT(gmtFile)
+ann_gmt <- read.gmt(gmtFile)
 
 # Take 50\% of the first gene set as an example list of interest
 index <- 1
@@ -40,5 +40,7 @@ result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
 }
 }
 \seealso{
-\code{\link{fetchAnnotations}}
+\code{\link{read.gmt}},
+\code{\link{fetchAnnotations}},
+\code{\link{runFisherTests}}.
 }

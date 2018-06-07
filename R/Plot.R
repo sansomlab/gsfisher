@@ -1,12 +1,14 @@
 #' Draw a heatmap of enriched genesets in all samples
 #'
-#' @param results_table A gofisher multi-sample results table
-#' @param max_rows The maximum number of rows to show in the heatmap
-#' @param adjust_pvalues Adjust p-values across all sample
-#' @param pvalue_threshold P-value threshold
-#' @param maxl  The maximum length for gene set names
-#' @param show_common Show gene sets enriched in all samples.
-#' @param min_genes Minimum number of genes to filter gene sets for.
+#' @param results_table A \emph{gofisher} multi-sample results table.
+#' @param max_rows Maximum number of rows to show in the heatmap.
+#' @param adjust_pvalues Logical value indicating whether to adjust p-values
+#' across all sample.
+#' @param pvalue_threshold P-value threshold.
+#' @param maxl Maximum length for gene set names (trimmed otherwise).
+#' @param show_common Logical value indicating whether to show gene sets
+#' enriched in all samples.
+#' @param min_genes Minimum number of genes to filter gene sets.
 #' @param padjust_method Correction method. Can be abbreviated
 #' (see \code{\link{p.adjust.methods}}).
 #' @param title Title of the heat map plot.
@@ -21,7 +23,10 @@
 #' @export
 #'
 #' @seealso
+#' \code{\link{read.gmt}}
 #' \code{\link{p.adjust}}
+#'
+#' @author Steve Sansom
 sampleEnrichmentHeatmap <- function(
     results_table, max_rows=50, min_genes=2, adjust_pvalues=FALSE,
     padjust_method="BH", pvalue_threshold=0.1, maxl=45, show_common=TRUE,
@@ -30,8 +35,8 @@ sampleEnrichmentHeatmap <- function(
     total_n_sample <- length(unique(results_table[[sample_id_col]]))
 
     ## Filter the gene sets
-    results_table <- results_table[results_table$n_fg >= min_genes
-                                   & !is.na(results_table$n_fg),]
+    results_table <- results_table[
+        results_table$n_fg >= min_genes & !is.na(results_table$n_fg),]
 
     if (adjust_pvalues) {
         ## compute FDR accross all samples

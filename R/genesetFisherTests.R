@@ -13,13 +13,15 @@
 #' @importFrom stats fisher.test
 #'
 #' @seealso
-#' \code{\link{fetchAnnotations}}
+#' \code{\link{read.gmt}},
+#' \code{\link{fetchAnnotations}},
+#' \code{\link{runFisherTests}}.
 #'
 #' @export
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' index <- 1
@@ -121,9 +123,16 @@ fisherTest <- function(
 #'
 #' @export
 #'
+#' @seealso
+#' \code{\link{read.gmt}},
+#' \code{\link{fetchAnnotations}},
+#' \code{\link{fisherTest}}.
+#'
+#' @author Steve Sansom
+#'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
@@ -144,7 +153,7 @@ runFisherTests <- function(
     ## entrez_id, gene_name
     result <- lapply(
         seq_along(names(named_geneset_list)),
-        fisherTest,
+        "fisherTest",
         genesets=named_geneset_list,
         foreground_ids=foreground_ids,
         background_ids=background_ids,
@@ -219,9 +228,16 @@ runFisherTests <- function(
 #'
 #' @export
 #'
+#' @seealso
+#' \code{\link{read.gmt}},
+#' \code{\link{fetchAnnotations}},
+#' \code{\link{runGenesets}}.
+#'
+#' @author Steve Sansom
+#'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
@@ -276,7 +292,7 @@ runGO <- function(
 
 #' Run gene set enrichement on KEGG pathways
 #'
-#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways
+#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
 #'
 #' @param foreground_ids A list of ENTREZ ids of interest
 #' (e.g. significantly differentially expressed genes).
@@ -289,9 +305,17 @@ runGO <- function(
 #'
 #' @export
 #'
+#' @seealso
+#' \code{\link{read.gmt}},
+#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchKEGG}},
+#' \code{\link{runGenesets}}.
+#'
+#' @author Steve Sansom
+#'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
@@ -336,13 +360,20 @@ runKEGG <- function(
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotations}).
 #'
+#' @importFrom qusage read.gmt
+#'
 #' @export
 #'
-#' @author Steve Sansom and Kevin-Rue-Albrecht
+#' @seealso
+#' \code{\link{read.gmt}},
+#' \code{\link{fetchAnnotations}},
+#' \code{\link{runGenesets}}.
+#'
+#' @author Steve Sansom
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
@@ -355,7 +386,7 @@ runKEGG <- function(
 #' }
 runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
     ## Get the gene sets
-    gmt <- readGMT(gmt_file)
+    gmt <- read.gmt(gmt_file)
 
     ## Run the fisher tests
     result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotations)
@@ -363,7 +394,10 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
     return(result_table)
 }
 
-#' A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
+#' Wrapped to run gene set enrichement on multiple annotation databases
+#'
+#' A wrapper function to run Fisher tests for enrichement from GO categories,
+#' KEGG pathways and GMT files
 #'
 #' @param foreground_ids A list of ENTREZ ids of interest
 #' (e.g. significantly differentially expressed genes).
@@ -377,11 +411,16 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 #'
 #' @export
 #'
-#' @author Steve Sansom and Kevin-Rue-Albrecht
+#' @seealso
+#' \code{\link{runGO}},
+#' \code{\link{runKEGG}},
+#' \code{\link{runGMT}}.
+#'
+#' @author Steve Sansom
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
+#' ann_gmt <- read.gmt(gmtFile)
 #'
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{analyseGenesets}
 \alias{analyseGenesets}
-\title{A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files}
+\title{Wrapped to run gene set enrichement on multiple annotation databases}
 \usage{
 analyseGenesets(foreground_ids, background_ids, annotations,
   kegg_pathways = NULL, gmt_files = c(), species = c("hs", "mm"))
@@ -24,11 +24,12 @@ against which enrichment will be tested (i.e., the gene universe).}
 \item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
-A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
+A wrapper function to run Fisher tests for enrichement from GO categories,
+KEGG pathways and GMT files
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- readGMT(gmtFile)
+ann_gmt <- read.gmt(gmtFile)
 
 # Take 50\% of the first gene set as an example list of interest
 foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
@@ -43,6 +44,11 @@ result <- analyseGenesets(
     kegg_hs, gmt_files=c(extdata=gmtFile), species="hs")
 }
 }
+\seealso{
+\code{\link{runGO}},
+\code{\link{runKEGG}},
+\code{\link{runGMT}}.
+}
 \author{
-Steve Sansom and Kevin-Rue-Albrecht
+Steve Sansom
 }
