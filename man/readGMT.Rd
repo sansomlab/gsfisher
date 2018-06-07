@@ -12,3 +12,6 @@ readGMT(filepath)
 \description{
 Read genesets from a GMT file
 }
+\note{
+Deprecate and use \code{qusage::read.gmt} instead.
+}

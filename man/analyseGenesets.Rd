@@ -14,6 +14,8 @@ analyseGenesets(foreground_ids, background_ids, annotation,
 
 \item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).}
 
+\item{kegg_pathways}{List of KEGG gene sets.}
+
 \item{gmt_files}{A named list of GMT file locations.}
 
 \item{species}{The species code, only "hs" or "mm" are supported.}

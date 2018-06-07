@@ -5,20 +5,18 @@
 \title{A wrapper function to run Fisher tests for enrichement of KEGG Pathways.}
 \usage{
 runKEGG(foreground_ids, background_ids, keggData = NULL, annotation,
-  species = "hs")
+  species = c("hs", "mm"))
 }
 \arguments{
 \item{foreground_ids}{The list of entrez ids of interest (e.g. significantly differentially expressed genes).}
 
 \item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
 
+\item{keggData}{List of KEGG gene sets.}
+
 \item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).}
 
 \item{species}{The species code, only "hs" or "mm" are supported.}
-
-\item{genesets}{A named list of genesets.}
-
-\item{geneset_info}{A dataframe with the columns "geneset_id" and "description" (see fetchKEGG).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement of KEGG Pathways.

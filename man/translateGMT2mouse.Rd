@@ -7,10 +7,13 @@
 translateGMT2mouse(GMT, ensembl_version = "latest")
 }
 \arguments{
-\item{GMT}{A GMT-like geneset list (e.g. from readGMT)}
+\item{GMT}{A GMT-like gene set list (e.g., from \code{readGMT})}
 
 \item{ensembl_version}{Version of the ensembl annotation to use.}
 }
 \description{
 Useful for converting human msigdb GMTs to mouse.
+}
+\note{
+Use \code{qusage::read.gmt} instead of \code{readGMT}.
 }

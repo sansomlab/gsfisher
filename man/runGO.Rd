@@ -5,7 +5,7 @@
 \title{A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
 Depends on the bioconductor org.xx.eg.db and GO.db libraries}
 \usage{
-runGO(foreground_ids, background_ids, annotation, species = "hs")
+runGO(foreground_ids, background_ids, annotation, species = c("hs", "mm"))
 }
 \arguments{
 \item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}

@@ -4,7 +4,7 @@
 \alias{fetchKEGG}
 \title{Fetch KEGG pathway information.}
 \usage{
-fetchKEGG(species = "hs")
+fetchKEGG(species = c("hs", "mm"))
 }
 \arguments{
 \item{species}{The species code, only "hs" or "mm" are supported.}

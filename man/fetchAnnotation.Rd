@@ -4,7 +4,7 @@
 \alias{fetchAnnotation}
 \title{Fetch table of ensembl_ids, entrez_ids and gene_names using bioMart.}
 \usage{
-fetchAnnotation(species = "hs", ensembl_version = "latest")
+fetchAnnotation(species = c("hs", "mm"), ensembl_version = "latest")
 }
 \arguments{
 \item{species}{The species code, only "hs" or "mm" are supported.}
@@ -14,6 +14,11 @@ fetchAnnotation(species = "hs", ensembl_version = "latest")
 \description{
 Fetch table of ensembl_ids, entrez_ids and gene_names using bioMart.
 }
+\details{
+Only human "hs" and mouse "mm" are supported.
+Annotation must contain the columns \code{"entrez_id"} and
+\code{"gene_name"}.
+}
 \examples{
-annotation <- fetchAnnotation(species="hs")
+\dontrun{annotation <- fetchAnnotation(species="hs")}
 }

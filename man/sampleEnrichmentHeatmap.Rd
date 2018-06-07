@@ -7,23 +7,33 @@
 sampleEnrichmentHeatmap(results_table, max_rows = 50, min_genes = 2,
   adjust_pvalues = FALSE, padjust_method = "BH", pvalue_threshold = 0.1,
   maxl = 45, show_common = TRUE, sample_id_col = "cluster",
-  title = "enriched genesets")
+  title = "Enriched gene sets")
 }
 \arguments{
 \item{results_table}{A gofisher multi-sample results table}
 
 \item{max_rows}{The maximum number of rows to show in the heatmap}
 
+\item{min_genes}{Minimum number of genes to filter gene sets for.}
+
 \item{adjust_pvalues}{Adjust p-values across all sample}
+
+\item{padjust_method}{Correction method. Can be abbreviated
+(see \code{\link{p.adjust.methods}}).}
 
 \item{pvalue_threshold}{P-value threshold}
 
-\item{maxl}{The maximum length for geneset names}
+\item{maxl}{The maximum length for gene set names}
 
-\item{show_common}{Show genesets enriched in all samples.}
+\item{show_common}{Show gene sets enriched in all samples.}
 
 \item{sample_id_col}{The column of the results_table containing the sample id}
+
+\item{title}{Title of the heat map plot.}
 }
 \description{
 Draw a heatmap of enriched genesets in all samples
+}
+\seealso{
+\code{\link{p.adjust}}
 }

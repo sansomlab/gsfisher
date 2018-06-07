@@ -7,13 +7,13 @@
 runFisherTests(named_geneset_list, foreground_ids, background_ids, annotation)
 }
 \arguments{
+\item{named_geneset_list}{List of named gene sets.}
+
 \item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
 
 \item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
 
 \item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
-
-\item{named_genesets_list}{a named list of genesets}
 }
 \description{
 Run a set of Fisher tests for geneset enrichement.
