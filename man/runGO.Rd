@@ -24,7 +24,6 @@ on Gene Ontology (GO) categories.
 Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 }
 \examples{
-
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
 

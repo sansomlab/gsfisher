@@ -205,12 +205,12 @@ runFisherTests <- function(
 #' Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 #'
 #' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes)
+#' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe)
+#' against which enrichment will be tested (i.e., the gene universe).
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotations}).
-#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @importFrom AnnotationDbi select
 #' @importFrom GO.db GO.db
@@ -220,7 +220,6 @@ runFisherTests <- function(
 #' @export
 #'
 #' @examples
-#'
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
@@ -275,17 +274,36 @@ runGO <- function(
 }
 
 
-#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
+#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways
 #'
-#' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
-#' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
-#' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
-#' @param keggData List of KEGG gene sets.
-#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param foreground_ids A list of ENTREZ ids of interest
+#' (e.g. significantly differentially expressed genes).
+#' @param background_ids A list of background ENTREZ ids.
+#' against which enrichment will be tested (i.e., the gene universe).
+#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
+#' (see \code{fetchAnnotations}).
+#' @param keggData A list of KEGG gene sets.
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @export
+#'
+#' @examples
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#'
+#' index <- 1
+#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#'
+#' \dontrun{
+#' # Fetch annotations
+#' ann_hs <- fetchAnnotations(species="hs")
+#' kegg_hs <- fetchKEGG(species="hs")
+#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+#' runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
+#' }
 runKEGG <- function(
-    foreground_ids, background_ids, keggData = NULL, annotations, species=c("hs", "mm")
+    foreground_ids, background_ids, keggData = NULL, annotations,
+    species=c("hs", "mm")
 ){
     species <- match.arg(species)
 
@@ -331,7 +349,7 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 #' @param gmt_files A named list of GMT file locations.
 #' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #' @param kegg_pathways List of KEGG gene sets.
-#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @export
 analyseGenesets <- function(

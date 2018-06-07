@@ -2,22 +2,40 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runKEGG}
 \alias{runKEGG}
-\title{A wrapper function to run Fisher tests for enrichement of KEGG Pathways.}
+\title{A wrapper function to run Fisher tests for enrichement of KEGG Pathways}
 \usage{
 runKEGG(foreground_ids, background_ids, keggData = NULL, annotations,
   species = c("hs", "mm"))
 }
 \arguments{
-\item{foreground_ids}{The list of entrez ids of interest (e.g. significantly differentially expressed genes).}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes).}
 
-\item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe).}
 
-\item{keggData}{List of KEGG gene sets.}
+\item{keggData}{A list of KEGG gene sets.}
 
-\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations}).}
 
 \item{species}{Species identifiers (only "hs" or "mm" are supported).}
 }
 \description{
-A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
+A wrapper function to run Fisher tests for enrichement of KEGG Pathways
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- readGMT(gmtFile)
+
+index <- 1
+foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotations(species="hs")
+kegg_hs <- fetchKEGG(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
+}
 }

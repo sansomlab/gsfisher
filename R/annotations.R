@@ -4,7 +4,7 @@
 #' Fetches annotations for human ("hs") or mouse ("mm") from the
 #' Ensembl BioMart.
 #'
-#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #' @param ensembl_version Version of the ensembl annotation to use,
 #' passed to \code{biomaRt::useEnsembl}.
 #' The default \code{NULL} uses the current annotation release.
@@ -52,7 +52,7 @@ fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
 
 #' Fetch KEGG pathway annotations
 #'
-#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @return A list of two elements: "genesets" and "geneset_info".
 #'
