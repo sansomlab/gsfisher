@@ -4,9 +4,9 @@
 #' @param n A numeric scalar indicating the index of the gene set to test.
 #' @param genesets A named list of gene sets.
 #' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes)
+#' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe)
+#' against which enrichment will be tested (i.e., the gene universe).
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotations}).
 #'
@@ -18,18 +18,19 @@
 #' @export
 #'
 #' @examples
-#'
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
+#' # Take 50% of the first gene set as an example list of interest
 #' index <- 1
-#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#' foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
 #'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' fisherTest(index, ann_gmt, foreground, background, ann_hs)
+#' # Demonstrate significant enrichment for the first gene set
+#' result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
 #' }
 fisherTest <- function(
     n, genesets, foreground_ids, background_ids, annotations
@@ -69,7 +70,7 @@ fisherTest <- function(
     nnfg <- lfg - nfg
     nnbg <- lbg - nbg
 
-    #################
+    #
     # gene set is white ball, not gene set is black
     # and interprets the situation under the null hypothesis as taking a
     # sample of size a+c from an urn with a+b white balls and c+d black balls.
@@ -121,18 +122,17 @@ fisherTest <- function(
 #' @export
 #'
 #' @examples
-#'
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
-#' index <- 1
-#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#' # Take 50% of the first gene set as an example list of interest
+#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 #'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' runFisherTests(ann_gmt, foreground, background, ann_hs)
+#' result <- runFisherTests(ann_gmt, foreground, background, ann_hs)
 #' }
 runFisherTests <- function(
     named_geneset_list,
@@ -223,14 +223,14 @@ runFisherTests <- function(
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
-#' index <- 1
-#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#' # Take 50% of the first gene set as an example list of interest
+#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 #'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' runGO(foreground, background, ann_hs, "hs")
+#' result <- runGO(foreground, background, ann_hs, "hs")
 #' }
 runGO <- function(
     foreground_ids, background_ids, annotations, species=c("hs","mm")
@@ -293,15 +293,15 @@ runGO <- function(
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
-#' index <- 1
-#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#' # Take 50% of the first gene set as an example list of interest
+#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 #'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
 #' kegg_hs <- fetchKEGG(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
+#' result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
 #' }
 runKEGG <- function(
     foreground_ids, background_ids, keggData = NULL, annotations,
@@ -344,14 +344,14 @@ runKEGG <- function(
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #'
-#' index <- 1
-#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#' # Take 50% of the first gene set as an example list of interest
+#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 #'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' runGMT(foreground, background, gmtFile, ann_hs)
+#' result <- runGMT(foreground, background, gmtFile, ann_hs)
 #' }
 runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
     ## Get the gene sets
@@ -365,18 +365,53 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 
 #' A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
 #'
-#' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
-#' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
-#' @param gmt_files A named list of GMT file locations.
-#' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
-#' @param kegg_pathways List of KEGG gene sets.
+#' @param foreground_ids A list of ENTREZ ids of interest
+#' (e.g. significantly differentially expressed genes).
+#' @param background_ids A list of background ENTREZ ids.
+#' against which enrichment will be tested (i.e., the gene universe).
+#' @param gmt_files A named list of paths to GMT files.
+#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
+#' (see \code{fetchAnnotations}).
+#' @param kegg_pathways A list of KEGG gene sets.
 #' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @export
+#'
+#' @author Steve Sansom and Kevin-Rue-Albrecht
+#'
+#' @examples
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#'
+#' # Take 50% of the first gene set as an example list of interest
+#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+#'
+#' \dontrun{
+#' # Fetch annotations
+#' ann_hs <- fetchAnnotations(species="hs")
+#' kegg_hs <- fetchKEGG(species="hs")
+#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+#' result <- analyseGenesets(
+#'     foreground, background, ann_hs,
+#'     kegg_hs, gmt_files=c(extdata=gmtFile), species="hs")
+#' }
 analyseGenesets <- function(
     foreground_ids, background_ids, annotations,
-    kegg_pathways=NULL, gmt_files=c(), species="hs"
+    kegg_pathways=NULL, gmt_files=c(), species=c("hs", "mm")
 ){
+    species <- match.arg(species)
+
+    if (length(gmt_files)) {
+        if (is.null(names(gmt_files))) {
+            print(gmt_files)
+            stop("names(gmt_files) cannot be NULL")
+        }
+        if (any(names(gmt_files) == "")) {
+            print(gmt_files)
+            stop("All elements of gmt_files must be named")
+        }
+    }
+
     results <- list()
 
     ## runGO
@@ -403,6 +438,7 @@ analyseGenesets <- function(
     message("Running GMT files ...")
 
     for (geneset_name in names(gmt_files)) {
+        message("- Running ", geneset_name, " ...")
         results[[geneset_name]] <- runGMT(
             foreground_ids, background_ids,
             gmt_files[[geneset_name]],

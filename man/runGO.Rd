@@ -27,13 +27,13 @@ Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
 
-index <- 1
-foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+# Take 50\% of the first gene set as an example list of interest
+foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 
 \dontrun{
 # Fetch annotations
 ann_hs <- fetchAnnotations(species="hs")
 background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-runGO(foreground, background, ann_hs, "hs")
+result <- runGO(foreground, background, ann_hs, "hs")
 }
 }

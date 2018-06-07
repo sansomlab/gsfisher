@@ -12,10 +12,10 @@ fisherTest(n, genesets, foreground_ids, background_ids, annotations)
 \item{genesets}{A named list of gene sets.}
 
 \item{foreground_ids}{A list of ENTREZ ids of interest
-(e.g. significantly differentially expressed genes)}
+(e.g. significantly differentially expressed genes).}
 
 \item{background_ids}{A list of background ENTREZ ids.
-against which enrichment will be tested (i.e., the gene universe)}
+against which enrichment will be tested (i.e., the gene universe).}
 
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
 (see \code{fetchAnnotations}).}
@@ -24,18 +24,19 @@ against which enrichment will be tested (i.e., the gene universe)}
 Perform a single Fisher test for gene set enrichement
 }
 \examples{
-
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
 
+# Take 50\% of the first gene set as an example list of interest
 index <- 1
-foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
 
 \dontrun{
 # Fetch annotations
 ann_hs <- fetchAnnotations(species="hs")
 background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-fisherTest(index, ann_gmt, foreground, background, ann_hs)
+# Demonstrate significant enrichment for the first gene set
+result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
 }
 }
 \seealso{

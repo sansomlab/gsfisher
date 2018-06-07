@@ -5,21 +5,44 @@
 \title{A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files}
 \usage{
 analyseGenesets(foreground_ids, background_ids, annotations,
-  kegg_pathways = NULL, gmt_files = c(), species = "hs")
+  kegg_pathways = NULL, gmt_files = c(), species = c("hs", "mm"))
 }
 \arguments{
-\item{foreground_ids}{The list of entrez ids of interest (e.g. significantly differentially expressed genes).}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes).}
 
-\item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe).}
 
-\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations}).}
 
-\item{kegg_pathways}{List of KEGG gene sets.}
+\item{kegg_pathways}{A list of KEGG gene sets.}
 
-\item{gmt_files}{A named list of GMT file locations.}
+\item{gmt_files}{A named list of paths to GMT files.}
 
 \item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- readGMT(gmtFile)
+
+# Take 50\% of the first gene set as an example list of interest
+foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotations(species="hs")
+kegg_hs <- fetchKEGG(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+result <- analyseGenesets(
+    foreground, background, ann_hs,
+    kegg_hs, gmt_files=c(extdata=gmtFile), species="hs")
+}
+}
+\author{
+Steve Sansom and Kevin-Rue-Albrecht
 }

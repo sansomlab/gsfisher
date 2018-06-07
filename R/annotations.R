@@ -31,12 +31,12 @@ fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
     species <- match.arg(species)
 
     if (species == "hs") {
-        message("Using human biomart")
+        message("Using human biomart ...")
         dataset <- "hsapiens_gene_ensembl"
         namecol <- "external_gene_name"
     }
     if (species == "mm") {
-        message("Using mouse biomart")
+        message("Using mouse biomart ...")
         dataset <- "mmusculus_gene_ensembl"
         namecol <- "mgi_symbol"
     }
@@ -70,10 +70,12 @@ fetchKEGG <- function(species=c("hs", "mm")) {
     species <- match.arg(species)
 
     if (species == "hs") {
+        message("Using human KEGG pathways ...")
         kegg_species <- "hsa"
         description_suffix <- " - Homo sapiens \\(human\\)"
     }
     if (species == "mm") {
+        message("Using mouse KEGG pathways ...")
         kegg_species <- "mmu"
         description_suffix=" - Mus musculus \\(mouse\\)"
     }
