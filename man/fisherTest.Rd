@@ -2,22 +2,27 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{fisherTest}
 \alias{fisherTest}
-\title{Perform a single Fisher tests for gene set enrichement}
+\title{Perform a single Fisher test for gene set enrichement}
 \usage{
-fisherTest(n, genesets = "none", foreground_ids = "none",
-  background_ids = "none", annotation = "none")
+fisherTest(n, genesets, foreground_ids, background_ids, annotation)
 }
 \arguments{
-\item{n}{the index of the gene set to test}
+\item{n}{A numeric scalar indicating the index of the gene set to test.}
 
-\item{genesets}{the list of gene sets}
+\item{genesets}{A named list of gene sets.}
 
-\item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes)}
 
-\item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
+\item{background_ids}{A list of background ENTREZ ids
+against which enrichment will be tested (i.e., the gene universe)}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{annotation}{A data.frame with columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations})}
 }
 \description{
-Perform a single Fisher tests for gene set enrichement
+Perform a single Fisher test for gene set enrichement
+}
+\seealso{
+\code{\link{fetchAnnotations}}
 }

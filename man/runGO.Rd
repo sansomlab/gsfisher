@@ -12,7 +12,7 @@ runGO(foreground_ids, background_ids, annotation, species = c("hs", "mm"))
 
 \item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)}
 
 \item{species}{The species code, only "hs" or "mm" are supported.}
 }

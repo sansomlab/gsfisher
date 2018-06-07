@@ -4,15 +4,15 @@
 \alias{mapENTREZhuman2mouse}
 \title{Translate ENTREZ gene sets from human to mouse}
 \usage{
-mapENTREZhuman2mouse(GMT, ensembl_version = "latest")
+mapENTREZhuman2mouse(GMT, ensembl_version = NULL)
 }
 \arguments{
 \item{GMT}{A named list of gene sets
 (e.g., from \code{qusage::read.gmt}).}
 
-\item{ensembl_version}{Version of the ensembl annotation to use
-(passed to \code{biomaRt::useEnsembl(version=...)}).
-For the current annotation release, use "latest".}
+\item{ensembl_version}{Version of the ensembl annotation to use,
+passed to \code{biomaRt::useEnsembl}.
+The default \code{NULL} uses the current annotation release.}
 }
 \description{
 Uses ENSEMBL biomaRt for converting human MSigDB gene sets to mouse.
@@ -21,7 +21,7 @@ Uses ENSEMBL biomaRt for converting human MSigDB gene sets to mouse.
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
 \dontrun{
-mapENTREZhuman2mouse(ann_gmt, ensembl_version="latest")
+mapENTREZhuman2mouse(ann_gmt, ensembl_version=NULL)
 }
 }
 \seealso{

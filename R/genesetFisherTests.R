@@ -1,10 +1,16 @@
 
 #' Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart
 #'
-#' @param species The species code, only "hs" or "mm" are supported.
-#' @param ensembl_version The version of ENSEMBL annotation to use.
+#' Fetches annotations for human ("hs") or mouse ("mm") from the
+#' Ensembl BioMart.
 #'
-#' @return A data.frame
+#' @param species Species identifiers (only "hs" or "mm" are supported).
+#' @param ensembl_version Version of the ensembl annotation to use,
+#' passed to \code{biomaRt::useEnsembl}.
+#' The default \code{NULL} uses the current annotation release.
+#'
+#' @return A data.frame of three columns:
+#' \code{c("ensembl_id", "entrez_id", "gene_name")}
 #'
 #' @details
 #' Only human "hs" and mouse "mm" are supported.
@@ -17,10 +23,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' ann_hs <- fetchAnnotation(species="hs")
-#' ann_mm <- fetchAnnotation(species="mm")
+#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_mm <- fetchAnnotations(species="mm")
 #' }
-fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
+fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
 
     species <- match.arg(species)
 
@@ -33,12 +39,6 @@ fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
         message("Using mouse biomart")
         dataset <- "mmusculus_gene_ensembl"
         namecol <- "mgi_symbol"
-    }
-
-    if (ensembl_version == "latest") {
-        version <- NULL
-    } else {
-        version <- ensembl_version
     }
 
     ensembl <- useEnsembl(biomart="ensembl", dataset=dataset, version=version)
@@ -103,9 +103,9 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 #'
 #' @param GMT A named list of gene sets
 #' (e.g., from \code{qusage::read.gmt}).
-#' @param ensembl_version Version of the ensembl annotation to use
-#' (passed to \code{biomaRt::useEnsembl(version=...)}).
-#' For the current annotation release, use "latest".
+#' @param ensembl_version Version of the ensembl annotation to use,
+#' passed to \code{biomaRt::useEnsembl}.
+#' The default \code{NULL} uses the current annotation release.
 #'
 #' @importFrom biomaRt useEnsembl getBM
 #'
@@ -119,15 +119,13 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 #' ann_gmt <- readGMT(gmtFile)
 #' \dontrun{
-#' mapENTREZhuman2mouse(ann_gmt, ensembl_version="latest")
+#' mapENTREZhuman2mouse(ann_gmt, ensembl_version=NULL)
 #' }
-mapENTREZhuman2mouse <- function(GMT, ensembl_version="latest") {
+mapENTREZhuman2mouse <- function(GMT, ensembl_version=NULL) {
     # Catch before wasting time fetching from ENSEMBL
     if (missing(GMT)) {
         stop("GMT must be supplied")
     }
-
-    if (identical(ensembl_version, "latest")) { ensembl_version <- NULL }
 
     humanEnsembl <- useEnsembl(biomart="ensembl",
                                dataset="hsapiens_gene_ensembl",
@@ -165,20 +163,25 @@ mapENTREZhuman2mouse <- function(GMT, ensembl_version="latest") {
     return(mmGMT)
 }
 
-#' Perform a single Fisher tests for gene set enrichement
+#' Perform a single Fisher test for gene set enrichement
 #'
-#' @param n the index of the gene set to test
-#' @param genesets the list of gene sets
-#' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
-#' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
-#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)
+#' @param n A numeric scalar indicating the index of the gene set to test.
+#' @param genesets A named list of gene sets.
+#' @param foreground_ids A list of ENTREZ ids of interest
+#' (e.g. significantly differentially expressed genes)
+#' @param background_ids A list of background ENTREZ ids
+#' against which enrichment will be tested (i.e., the gene universe)
+#' @param annotation A data.frame with columns "entrez_id" and "gene_name"
+#' (see \code{fetchAnnotations})
 #'
 #' @importFrom stats fisher.test
 #'
+#' @seealso
+#' \code{\link{fetchAnnotations}}
+#'
 #' @export
 fisherTest <- function(
-    n,
-    genesets="none", foreground_ids="none", background_ids="none", annotation="none"
+    n, genesets, foreground_ids, background_ids, annotation
 ){
 
     ## ensure we are working with character vectors
@@ -255,7 +258,7 @@ fisherTest <- function(
 #' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
 #' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
 #' @param named_geneset_list List of named gene sets.
-#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)
+#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)
 #'
 #' @export
 runFisherTests <- function(
@@ -328,7 +331,7 @@ runFisherTests <- function(
 #'
 #' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
 #' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
-#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)
+#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)
 #' @param species The species code, only "hs" or "mm" are supported.
 #'
 #' @importFrom AnnotationDbi select
@@ -383,7 +386,7 @@ runGO <- function(
 #'
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).
+#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #' @param keggData List of KEGG gene sets.
 #' @param species The species code, only "hs" or "mm" are supported.
 #'
@@ -415,7 +418,7 @@ runKEGG <- function(
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
 #' @param gmt_file The location of the GMT file.
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).
+#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #'
 #' @export
 runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
@@ -433,7 +436,7 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
 #' @param gmt_files A named list of GMT file locations.
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).
+#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #' @param kegg_pathways List of KEGG gene sets.
 #' @param species The species code, only "hs" or "mm" are supported.
 #'

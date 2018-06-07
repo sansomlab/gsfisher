@@ -13,7 +13,7 @@ runFisherTests(named_geneset_list, foreground_ids, background_ids, annotation)
 
 \item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)}
 }
 \description{
 Run a set of Fisher tests for gene set enrichement

@@ -13,7 +13,7 @@ runGMT(foreground_ids, background_ids, gmt_file, annotation)
 
 \item{gmt_file}{The location of the GMT file.}
 
-\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).}
+\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GMT files

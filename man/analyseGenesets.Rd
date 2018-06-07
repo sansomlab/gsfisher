@@ -12,7 +12,7 @@ analyseGenesets(foreground_ids, background_ids, annotation,
 
 \item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
 
-\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).}
+\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
 
 \item{kegg_pathways}{List of KEGG gene sets.}
 
