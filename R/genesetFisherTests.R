@@ -173,7 +173,7 @@ translateGMT2mouse <- function(GMT, ensembl_version="latest") {
 #'
 #' @export
 writeGMT <- function(geneset, outfile) {
-    con <- file(outfile)
+    conn <- file(outfile)
 
     lines <- c()
     for (category in names(geneset)) {
@@ -181,9 +181,11 @@ writeGMT <- function(geneset, outfile) {
         line <- paste(contents, collapse="\t")
         lines <- c(lines,line)
     }
-    writeLines(lines, con)
-    close(con)
 
+    writeLines(lines, conn)
+    status <- close(conn)
+
+    return(status)
 }
 
 
@@ -210,7 +212,7 @@ fisherTest <- function(
     background_ids <- unique(as.character(background_ids[!is.na(background_ids)]))
 
     ## ensure background set contains the foreground_ids
-    background_ids <- unique(c(foreground_ids,background_ids))
+    background_ids <- unique(c(foreground_ids, background_ids))
 
     set_name <- names(genesets)[n]
     set <- genesets[[n]]
@@ -246,27 +248,30 @@ fisherTest <- function(
     #  in geneset      |   a   | b
     #  not in geneset  |   c   | d
 
-    ct <- matrix(c(nfg,nbg-nfg,
-                   nnfg,lbg-lfg-(nbg-nfg)),
-                 ncol=2, byrow=TRUE)
+    ct <- matrix(c(
+        nfg, nbg - nfg,
+        nnfg, lbg - lfg - (nbg - nfg)
+        ),
+        ncol=2, byrow=TRUE)
 
     ## run one sided fishers' exact test
     ft <- fisher.test(ct, alternative="g")
 
     ## get frequencies
-    fg_freq <- nfg/lfg
-    bg_freq <- nbg/lbg
+    fg_freq <- nfg / lfg
+    bg_freq <- nbg / lbg
 
     ## build the result
-    result <- c(set_name,
-                fg_freq, bg_freq,
-                nfg, nbg, n_set,
-                ft$p.value, ft$estimate,
-                paste(in_fg,collapse=","),
-                paste(in_fg_names,collapse=","))
+    result <- c(
+        set_name,
+        fg_freq, bg_freq,
+        nfg, nbg, n_set,
+        ft$p.value, ft$estimate,
+        paste(in_fg, collapse=","),
+        paste(in_fg_names, collapse=","))
 
     ## return results vector
-    as.vector(result)
+    return(as.vector(result))
 }
 
 #' Run a set of Fisher tests for geneset enrichement.
@@ -277,66 +282,68 @@ fisherTest <- function(
 #' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)
 #'
 #' @export
-runFisherTests <- function(named_geneset_list,
-                           foreground_ids,
-                           background_ids,
-                           annotation)
-{
+runFisherTests <- function(
+    named_geneset_list,
+    foreground_ids,
+    background_ids,
+    annotation
+){
     ## annotation must contain columns
     ## entrez_id, gene_name
-    result <- lapply(1:length(names(named_geneset_list)),
-                     fisherTest,
-                     genesets=named_geneset_list,
-                     foreground_ids=foreground_ids,
-                     background_ids=background_ids,
-                     annotation=annotation)
+    result <- lapply(
+        seq_along(names(named_geneset_list)),
+        fisherTest,
+        genesets=named_geneset_list,
+        foreground_ids=foreground_ids,
+        background_ids=background_ids,
+        annotation=annotation)
 
     ## remove the empty results (test not performed)
     ## this may have implications for multiple testing correction
-    result <- result[!sapply(result,function(x) all(is.na(x)))]
+    result <- result[!sapply(
+        result,
+        function(x) { all(is.na(x)) }
+        )]
 
-    numeric_columns <- c("fg_freq","bg_freq","n_fg","n_bg","n_set","p.val","odds.ratio")
+    numeric_columns <- c(
+        "fg_freq", "bg_freq", "n_fg", "n_bg", "n_set", "p.val", "odds.ratio")
 
-    headings <- c("geneset_id",
-                  numeric_columns,
-                  "entrez_ids","gene_names")
+    headings <- c(
+        "geneset_id", numeric_columns, "entrez_ids", "gene_names")
 
 
-    if(length(result)==0)
-    {
-        result_table=data.frame(matrix(vector(),0,length(headings),
-                                       dimnames=list(c(),headings)),
-                                stringsAsFactors=FALSE)
-    }
-    else {
+    if (length(result) == 0) {
+        result_table=data.frame(
+            matrix(
+                vector(), 0, length(headings),
+                dimnames=list(c(), headings)),
+            stringsAsFactors=FALSE)
+    } else {
         ## build a results table
-        result_table <- as.data.frame(matrix(unlist(result),
-                                             ncol=length(result[[1]]),
-                                             byrow=TRUE),
-                                      stringsAsFactors=FALSE)
+        result_table <- as.data.frame(
+            matrix(unlist(result), ncol=length(result[[1]]), byrow=TRUE),
+            stringsAsFactors=FALSE)
 
 
         names(result_table) <- headings
 
 
         ## reorder
-        result_table <- result_table[, c("geneset_id",
-                                         numeric_columns,
-                                         "gene_names","entrez_ids")]
+        result_table <- result_table[
+            , c("geneset_id", numeric_columns, "gene_names","entrez_ids")]
 
         ## make the numeric columns numeric..
-        for(numcol in numeric_columns)
-        {
-            result_table[,numcol] <- as.numeric(result_table[,numcol])
+        for (numcol in numeric_columns) {
+            result_table[,numcol] <- as.numeric(result_table[, numcol])
         }
 
-        result_table <- result_table[order(result_table$p.val),]
+        result_table <- result_table[order(result_table$p.val), ]
 
     }
 
     ## Note that it is left to the user to adjust p-values as appropriate
 
-    result_table
+    return(result_table)
 }
 
 
