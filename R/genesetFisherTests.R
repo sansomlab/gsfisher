@@ -1,8 +1,10 @@
 
-#' Fetch table of ensembl_ids, entrez_ids and gene_names using bioMart.
+#' Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart
 #'
 #' @param species The species code, only "hs" or "mm" are supported.
 #' @param ensembl_version The version of ENSEMBL annotation to use.
+#'
+#' @return A data.frame
 #'
 #' @details
 #' Only human "hs" and mouse "mm" are supported.
@@ -16,7 +18,8 @@
 #' @examples
 #' \dontrun{
 #' ann_hs <- fetchAnnotation(species="hs")
-#' ann_mm <- fetchAnnotation(species="mm")}
+#' ann_mm <- fetchAnnotation(species="mm")
+#' }
 fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
 
     species <- match.arg(species)
@@ -47,9 +50,11 @@ fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
     return(annotation)
 }
 
-#' Fetch KEGG pathway information.
+#' Fetch KEGG pathway annotations
 #'
 #' @param species The species code, only "hs" or "mm" are supported.
+#'
+#' @return A list of two elements: "genesets" and "geneset_info".
 #'
 #' @importFrom limma getGeneKEGGLinks getKEGGPathwayNames
 #'
@@ -58,7 +63,8 @@ fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
 #' @examples
 #' \dontrun{
 #' kegg_hs <- fetchKEGG(species="hs")
-#' kegg_mm <- fetchKEGG(species="mm")}
+#' kegg_mm <- fetchKEGG(species="mm")
+#' }
 fetchKEGG <- function(species=c("hs", "mm")) {
 
     species <- match.arg(species)
@@ -91,45 +97,15 @@ fetchKEGG <- function(species=c("hs", "mm")) {
     return(result)
 }
 
-#' Read genesets from a GMT file
+#' Translate ENTREZ gene sets from human to mouse
 #'
-#' @param filepath The location of the GMT file.
-#'
-#' @details
-#' Deprecated. Use \code{qusage::read.gmt} instead.
-#'
-#' @export
-#'
-#' @seealso
-#' \code{\link[qusage]{read.gmt}}
-readGMT <- function(filepath) {
-
-    conn = file(filepath, "r")
-    genesets <- list()
-
-    while ( TRUE ) {
-        line = readLines(conn, n=1)
-        if ( length(line) == 0 ) {
-            break
-        } else {
-            contents <- strsplit(line, "\t")[[1]]
-            genesets[[contents[1]]] <- contents[3:length(contents)]
-        }
-    }
-
-    close(conn)
-
-    return(genesets)
-}
-
-#' Translate a list of genesets from human to mouse entrezgenes.
-#'
-#' Useful for converting human msigdb GMTs to mouse.
+#' Uses ENSEMBL biomaRt for converting human MSigDB gene sets to mouse.
 #'
 #' @param GMT A named list of gene sets
 #' (e.g., from \code{qusage::read.gmt}).
 #' @param ensembl_version Version of the ensembl annotation to use
-#' (see \code{biomaRt::useEnsembl}).
+#' (passed to \code{biomaRt::useEnsembl(version=...)}).
+#' For the current annotation release, use "latest".
 #'
 #' @importFrom biomaRt useEnsembl getBM
 #'
@@ -138,8 +114,20 @@ readGMT <- function(filepath) {
 #' @seealso
 #' \code{\link[qusage]{read.gmt}}
 #' \code{\link[biomaRt]{useEnsembl}}
-translateGMT2mouse <- function(GMT, ensembl_version="latest") {
-    if (ensembl_version == "latest") { ensembl_version <- NULL }
+#'
+#' @examples
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#' \dontrun{
+#' mapENTREZhuman2mouse(ann_gmt, ensembl_version="latest")
+#' }
+mapENTREZhuman2mouse <- function(GMT, ensembl_version="latest") {
+    # Catch before wasting time fetching from ENSEMBL
+    if (missing(GMT)) {
+        stop("GMT must be supplied")
+    }
+
+    if (identical(ensembl_version, "latest")) { ensembl_version <- NULL }
 
     humanEnsembl <- useEnsembl(biomart="ensembl",
                                dataset="hsapiens_gene_ensembl",
@@ -177,34 +165,10 @@ translateGMT2mouse <- function(GMT, ensembl_version="latest") {
     return(mmGMT)
 }
 
-
-#' Write genesets to a GMT file
+#' Perform a single Fisher tests for gene set enrichement
 #'
-#' @param geneset A geneset list (e.g. from readGMT)
-#' @param outfile The name of the outfile
-#'
-#' @export
-writeGMT <- function(geneset, outfile) {
-    conn <- file(outfile)
-
-    lines <- c()
-    for (category in names(geneset)) {
-        contents <- c(category, "gsFisher.writeGMT", geneset[[category]])
-        line <- paste(contents, collapse="\t")
-        lines <- c(lines,line)
-    }
-
-    writeLines(lines, conn)
-    status <- close(conn)
-
-    return(status)
-}
-
-
-#' Perform a single Fisher tests for geneset enrichement.
-#'
-#' @param n the index of the geneset to test
-#' @param genesets the list of genesets
+#' @param n the index of the gene set to test
+#' @param genesets the list of gene sets
 #' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
 #' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
 #' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)
@@ -241,7 +205,7 @@ fisherTest <- function(
     ## if there is not intersection, skip
     if(nfg==0) { return(NA) }
 
-    ## get the gene symbols of the geneset members in the foreground set
+    ## get the gene symbols of the gene set members in the foreground set
     in_fg_names <- unique(annotation$gene_name[annotation$entrez_id %in% in_fg])
 
     ## get the intersection with the background set
@@ -252,13 +216,13 @@ fisherTest <- function(
     nnbg <- lbg - nbg
 
     #################
-    # geneset is white ball, not geneset is black
+    # gene set is white ball, not gene set is black
     # and interprets the situation under the null hypothesis as taking a
     # sample of size a+c from an urn with a+b white balls and c+d black balls.
     #
     #                  | seen | not seen
-    #  in geneset      |   a   | b
-    #  not in geneset  |   c   | d
+    #  in gene set      |   a   | b
+    #  not in gene set  |   c   | d
 
     ct <- matrix(c(
         nfg, nbg - nfg,
@@ -286,7 +250,7 @@ fisherTest <- function(
     return(as.vector(result))
 }
 
-#' Run a set of Fisher tests for geneset enrichement.
+#' Run a set of Fisher tests for gene set enrichement
 #'
 #' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
 #' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
@@ -381,7 +345,7 @@ runGO <- function(
     ## Sanity check
     if (length(foreground_ids) == 0) { stop("No foreground genes") }
 
-    ## Get the genesets
+    ## Get the gene sets
     if (species == "hs") {
         genesets <- as.list(org.Hs.egGO2ALLEGS)
     }
@@ -455,7 +419,7 @@ runKEGG <- function(
 #'
 #' @export
 runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
-    ## Get the genesets
+    ## Get the gene sets
     gmt <- readGMT(gmt_file)
 
     ## Run the fisher tests

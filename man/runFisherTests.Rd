@@ -2,7 +2,7 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runFisherTests}
 \alias{runFisherTests}
-\title{Run a set of Fisher tests for geneset enrichement.}
+\title{Run a set of Fisher tests for gene set enrichement}
 \usage{
 runFisherTests(named_geneset_list, foreground_ids, background_ids, annotation)
 }
@@ -16,5 +16,5 @@ runFisherTests(named_geneset_list, foreground_ids, background_ids, annotation)
 \item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
 }
 \description{
-Run a set of Fisher tests for geneset enrichement.
+Run a set of Fisher tests for gene set enrichement
 }

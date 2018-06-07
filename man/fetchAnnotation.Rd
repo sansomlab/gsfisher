@@ -2,7 +2,7 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{fetchAnnotation}
 \alias{fetchAnnotation}
-\title{Fetch table of ensembl_ids, entrez_ids and gene_names using bioMart.}
+\title{Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart}
 \usage{
 fetchAnnotation(species = c("hs", "mm"), ensembl_version = "latest")
 }
@@ -11,8 +11,11 @@ fetchAnnotation(species = c("hs", "mm"), ensembl_version = "latest")
 
 \item{ensembl_version}{The version of ENSEMBL annotation to use.}
 }
+\value{
+A data.frame
+}
 \description{
-Fetch table of ensembl_ids, entrez_ids and gene_names using bioMart.
+Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart
 }
 \details{
 Only human "hs" and mouse "mm" are supported.
@@ -22,5 +25,6 @@ Annotation must contain the columns \code{"entrez_id"} and
 \examples{
 \dontrun{
 ann_hs <- fetchAnnotation(species="hs")
-ann_mm <- fetchAnnotation(species="mm")}
+ann_mm <- fetchAnnotation(species="mm")
+}
 }
