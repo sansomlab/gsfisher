@@ -110,12 +110,30 @@ fisherTest <- function(
 
 #' Run a set of Fisher tests for gene set enrichement
 #'
-#' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
-#' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
+#' @param foreground_ids A list of ENTREZ ids of interest
+#' (e.g. significantly differentially expressed genes)
+#' @param background_idsA list of background ENTREZ ids.
+#' against which enrichment will be tested (i.e., the gene universe)
 #' @param named_geneset_list List of named gene sets.
-#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)
+#' @param annotation A data.frame with at least columns "entrez_id" and "gene_name"
+#' (see \code{fetchAnnotations}).
 #'
 #' @export
+#'
+#' @examples
+#'
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#'
+#' index <- 1
+#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#'
+#' \dontrun{
+#' # Fetch annotations
+#' ann_hs <- fetchAnnotations(species="hs")
+#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+#' runFisherTests(ann_gmt, foreground, background, ann_hs)
+#' }
 runFisherTests <- function(
     named_geneset_list,
     foreground_ids,

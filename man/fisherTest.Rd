@@ -24,14 +24,18 @@ against which enrichment will be tested (i.e., the gene universe)}
 Perform a single Fisher test for gene set enrichement
 }
 \examples{
+
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- readGMT(gmtFile)
+
+index <- 1
+foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+
 \dontrun{
 # Fetch annotations
 ann_hs <- fetchAnnotations(species="hs")
-
-# Create a foreground that is 75\% of the first gene set
-geneset1 <- ann_hs[1]
-geneset1
-foreground1 <- head(geneset1[[1]], length(geneset_ex) / 2)
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+fisherTest(index, ann_gmt, foreground, background, ann_hs)
 }
 }
 \seealso{
