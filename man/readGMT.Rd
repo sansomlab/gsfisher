@@ -7,11 +7,14 @@
 readGMT(filepath)
 }
 \arguments{
-\item{filepath}{The location of the GMT file}
+\item{filepath}{The location of the GMT file.}
 }
 \description{
 Read genesets from a GMT file
 }
-\note{
-Deprecate and use \code{qusage::read.gmt} instead.
+\details{
+Deprecated. Use \code{qusage::read.gmt} instead.
+}
+\seealso{
+\code{\link[qusage]{read.gmt}}
 }

@@ -93,12 +93,15 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 
 #' Read genesets from a GMT file
 #'
-#' @param filepath The location of the GMT file
+#' @param filepath The location of the GMT file.
 #'
-#' @note
-#' Deprecate and use \code{qusage::read.gmt} instead.
+#' @details
+#' Deprecated. Use \code{qusage::read.gmt} instead.
 #'
 #' @export
+#'
+#' @seealso
+#' \code{\link[qusage]{read.gmt}}
 readGMT <- function(filepath) {
 
     conn = file(filepath, "r")
@@ -120,17 +123,21 @@ readGMT <- function(filepath) {
 }
 
 #' Translate a list of genesets from human to mouse entrezgenes.
-#' @description Useful for converting human msigdb GMTs to mouse.
 #'
-#' @param GMT A GMT-like gene set list (e.g., from \code{readGMT})
-#' @param ensembl_version Version of the ensembl annotation to use.
+#' Useful for converting human msigdb GMTs to mouse.
+#'
+#' @param GMT A named list of gene sets
+#' (e.g., from \code{qusage::read.gmt}).
+#' @param ensembl_version Version of the ensembl annotation to use
+#' (see \code{biomaRt::useEnsembl}).
 #'
 #' @importFrom biomaRt useEnsembl getBM
 #'
-#' @note
-#' Use \code{qusage::read.gmt} instead of \code{readGMT}.
-#'
 #' @export
+#'
+#' @seealso
+#' \code{\link[qusage]{read.gmt}}
+#' \code{\link[biomaRt]{useEnsembl}}
 translateGMT2mouse <- function(GMT, ensembl_version="latest") {
     if (ensembl_version == "latest") { ensembl_version <- NULL }
 
