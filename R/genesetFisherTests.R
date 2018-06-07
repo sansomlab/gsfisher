@@ -14,17 +14,20 @@
 #' @importFrom biomaRt useEnsembl getBM
 #'
 #' @examples
-#' \dontrun{annotation <- fetchAnnotation(species="hs")}
+#' \dontrun{
+#' ann_hs <- fetchAnnotation(species="hs")
+#' ann_mm <- fetchAnnotation(species="mm")
+#' }
 fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
     species <- match.arg(species)
 
     if (species == "hs") {
-        message("using human biomart")
+        message("Using human biomart")
         dataset <- "hsapiens_gene_ensembl"
         namecol <- "external_gene_name"
     }
     if (species == "mm") {
-        message("using mouse biomart")
+        message("Using mouse biomart")
         dataset <- "mmusculus_gene_ensembl"
         namecol <- "mgi_symbol"
     }
