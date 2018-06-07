@@ -436,24 +436,14 @@ runKEGG <- function(
 #' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation).
 #'
 #' @export
-runGMT <- function(foreground_ids,
-                   background_ids,
-                   gmt_file,
-                   annotation)
-{
-
+runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
     ## Get the genesets
-    if(is.null(gmt_file))
-    {
-        stop("Either gmt or gmt_file must be specified")
-    }
     gmt <- readGMT(gmt_file)
 
     ## Run the fisher tests
-    result_table <- runFisherTests(gmt, foreground_ids, background_ids,
-                                   annotation)
+    result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotation)
 
-    result_table
+    return(result_table)
 }
 
 #' A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
