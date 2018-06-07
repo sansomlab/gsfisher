@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @seealso
-#' \code{\link[qusage]{read.gmt}}
+#' \code{\link{read.gmt}}
 #'
 #' @author Steve Sansom
 #'

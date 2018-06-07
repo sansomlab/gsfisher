@@ -20,7 +20,7 @@ gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
 }
 \seealso{
-\code{\link[qusage]{read.gmt}}
+\code{\link{read.gmt}}
 }
 \author{
 Steve Sansom
