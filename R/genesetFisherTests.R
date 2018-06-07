@@ -370,11 +370,10 @@ runGO <- function(
     if (length(foreground_ids) == 0) { stop("No foreground genes") }
 
     ## Get the genesets
-    if(!species %in% c("hs","mm")) { stop("Species must be either hs or mm") }
-    if (species=="hs") {
+    if (species == "hs") {
         genesets <- as.list(org.Hs.egGO2ALLEGS)
     }
-    if (species=="mm") {
+    if (species == "mm") {
         genesets <- as.list(org.Mm.egGO2ALLEGS)
     }
 
@@ -387,7 +386,7 @@ runGO <- function(
 
     go_info <- select(
         GO.db, keys=result_table$geneset_id,
-        columns=c("TERM","ONTOLOGY"), keytype="GOID")
+        columns=c("TERM", "ONTOLOGY"), keytype="GOID")
 
     ## ensure congruence
     rownames(go_info) <- go_info$GOID
@@ -425,7 +424,7 @@ runKEGG <- function(
 
     result_table$description <- keggData$geneset_info[result_table$geneset_id, "description"]
 
-    first_cols <- c("geneset_id","description")
+    first_cols <- c("geneset_id", "description")
     other_cols <- colnames(result_table)[!colnames(result_table) %in% first_cols]
 
     result_table <- result_table[,c(first_cols, other_cols)]
@@ -471,9 +470,7 @@ analyseGenesets <- function(
 
     ## runGO
     message("Running GO ...")
-    go_result <- runGO(foreground_ids, background_ids,
-                       annotation,
-                       species=species)
+    go_result <- runGO(foreground_ids, background_ids, annotation, species=species)
 
     message(paste0( "- nrow GO: ", nrow(go_result) ))
 
@@ -487,8 +484,7 @@ analyseGenesets <- function(
     ## runKEGG
     message("Running KEGG ...")
     results[["KEGG"]] <- runKEGG(
-        foreground_ids, background_ids,
-        kegg_pathways, annotation, species)
+        foreground_ids, background_ids, kegg_pathways, annotation, species)
 
     message(paste0( "- nrow KEGG:", nrow(results[["KEGG"]]) ))
 
