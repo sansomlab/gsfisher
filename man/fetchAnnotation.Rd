@@ -20,5 +20,8 @@ Annotation must contain the columns \code{"entrez_id"} and
 \code{"gene_name"}.
 }
 \examples{
-\dontrun{annotation <- fetchAnnotation(species="hs")}
+\dontrun{
+ann_hs <- fetchAnnotation(species="hs")
+ann_mm <- fetchAnnotation(species="mm")
+}
 }
