@@ -4,7 +4,7 @@
 \alias{runGMT}
 \title{A wrapper function to run Fisher tests for enrichement from GMT files}
 \usage{
-runGMT(foreground_ids, background_ids, gmt_file, annotation)
+runGMT(foreground_ids, background_ids, gmt_file, annotations)
 }
 \arguments{
 \item{foreground_ids}{The list of entrez ids of interest (e.g. significantly differentially expressed genes).}
@@ -13,7 +13,7 @@ runGMT(foreground_ids, background_ids, gmt_file, annotation)
 
 \item{gmt_file}{The location of the GMT file.}
 
-\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GMT files

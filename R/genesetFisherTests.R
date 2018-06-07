@@ -7,7 +7,7 @@
 #' (e.g. significantly differentially expressed genes)
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe)
-#' @param annotation A data.frame with at least columns "entrez_id" and "gene_name"
+#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotations}).
 #'
 #' @importFrom stats fisher.test
@@ -32,7 +32,7 @@
 #' fisherTest(index, ann_gmt, foreground, background, ann_hs)
 #' }
 fisherTest <- function(
-    n, genesets, foreground_ids, background_ids, annotation
+    n, genesets, foreground_ids, background_ids, annotations
 ){
 
     ## ensure we are working with character vectors
@@ -60,7 +60,7 @@ fisherTest <- function(
     if(nfg==0) { return(NA) }
 
     ## get the gene symbols of the gene set members in the foreground set
-    in_fg_names <- unique(annotation$gene_name[annotation$entrez_id %in% in_fg])
+    in_fg_names <- unique(annotations$gene_name[annotations$entrez_id %in% in_fg])
 
     ## get the intersection with the background set
     nbg <- length(intersect(set, background_ids))
@@ -112,10 +112,10 @@ fisherTest <- function(
 #'
 #' @param foreground_ids A list of ENTREZ ids of interest
 #' (e.g. significantly differentially expressed genes)
-#' @param background_idsA list of background ENTREZ ids.
+#' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe)
 #' @param named_geneset_list List of named gene sets.
-#' @param annotation A data.frame with at least columns "entrez_id" and "gene_name"
+#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotations}).
 #'
 #' @export
@@ -138,9 +138,9 @@ runFisherTests <- function(
     named_geneset_list,
     foreground_ids,
     background_ids,
-    annotation
+    annotations
 ){
-    ## annotation must contain columns
+    ## annotations must contain columns
     ## entrez_id, gene_name
     result <- lapply(
         seq_along(names(named_geneset_list)),
@@ -148,7 +148,7 @@ runFisherTests <- function(
         genesets=named_geneset_list,
         foreground_ids=foreground_ids,
         background_ids=background_ids,
-        annotation=annotation)
+        annotations=annotations)
 
     ## remove the empty results (test not performed)
     ## this may have implications for multiple testing correction
@@ -198,14 +198,19 @@ runFisherTests <- function(
     return(result_table)
 }
 
-
-#' A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
-#' Depends on the bioconductor org.xx.eg.db and GO.db libraries
+#' Run Gene Ontology gene set enrichement
 #'
-#' @param foreground_ids the list of entrez ids of interest (e.g. significantly differentially expressed genes)
-#' @param background_ids the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)
-#' @param annotation a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)
-#' @param species The species code, only "hs" or "mm" are supported.
+#' A wrapper function to run Fisher's test for enrichement
+#' on Gene Ontology (GO) categories.
+#' Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
+#'
+#' @param foreground_ids A list of ENTREZ ids of interest
+#' (e.g. significantly differentially expressed genes)
+#' @param background_ids A list of background ENTREZ ids.
+#' against which enrichment will be tested (i.e., the gene universe)
+#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
+#' (see \code{fetchAnnotations}).
+#' @param species Species identifiers (only "hs" or "mm" are supported).
 #'
 #' @importFrom AnnotationDbi select
 #' @importFrom GO.db GO.db
@@ -214,7 +219,7 @@ runFisherTests <- function(
 #'
 #' @export
 runGO <- function(
-    foreground_ids, background_ids, annotation, species=c("hs","mm")
+    foreground_ids, background_ids, annotations, species=c("hs","mm")
 ){
     species <- match.arg(species)
 
@@ -231,7 +236,7 @@ runGO <- function(
 
     ## run the fisher tests
     result_table <- runFisherTests(
-        genesets, foreground_ids, background_ids, annotation)
+        genesets, foreground_ids, background_ids, annotations)
 
     ## retrieve additional info about the GO categories
     ## and add to the results table
@@ -259,20 +264,20 @@ runGO <- function(
 #'
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
+#' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #' @param keggData List of KEGG gene sets.
-#' @param species The species code, only "hs" or "mm" are supported.
+#' @param species Species identifiers (only "hs" or "mm" are supported).
 #'
 #' @export
 runKEGG <- function(
-    foreground_ids, background_ids, keggData = NULL, annotation, species=c("hs", "mm")
+    foreground_ids, background_ids, keggData = NULL, annotations, species=c("hs", "mm")
 ){
     species <- match.arg(species)
 
     if (is.null(keggData)) { keggData <- fetchKEGG(species=species) }
 
     result_table <- runFisherTests(
-        keggData$genesets, foreground_ids, background_ids, annotation)
+        keggData$genesets, foreground_ids, background_ids, annotations)
 
     result_table$description <- keggData$geneset_info[result_table$geneset_id, "description"]
 
@@ -291,15 +296,15 @@ runKEGG <- function(
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
 #' @param gmt_file The location of the GMT file.
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
+#' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #'
 #' @export
-runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
+runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
     ## Get the gene sets
     gmt <- readGMT(gmt_file)
 
     ## Run the fisher tests
-    result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotation)
+    result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotations)
 
     return(result_table)
 }
@@ -309,20 +314,20 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotation) {
 #' @param foreground_ids The list of entrez ids of interest (e.g. significantly differentially expressed genes).
 #' @param background_ids The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).
 #' @param gmt_files A named list of GMT file locations.
-#' @param annotation A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
+#' @param annotations A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).
 #' @param kegg_pathways List of KEGG gene sets.
-#' @param species The species code, only "hs" or "mm" are supported.
+#' @param species Species identifiers (only "hs" or "mm" are supported).
 #'
 #' @export
 analyseGenesets <- function(
-    foreground_ids, background_ids, annotation,
+    foreground_ids, background_ids, annotations,
     kegg_pathways=NULL, gmt_files=c(), species="hs"
 ){
     results <- list()
 
     ## runGO
     message("Running GO ...")
-    go_result <- runGO(foreground_ids, background_ids, annotation, species=species)
+    go_result <- runGO(foreground_ids, background_ids, annotations, species=species)
 
     message(paste0( "- nrow GO: ", nrow(go_result) ))
 
@@ -336,7 +341,7 @@ analyseGenesets <- function(
     ## runKEGG
     message("Running KEGG ...")
     results[["KEGG"]] <- runKEGG(
-        foreground_ids, background_ids, kegg_pathways, annotation, species)
+        foreground_ids, background_ids, kegg_pathways, annotations, species)
 
     message(paste0( "- nrow KEGG:", nrow(results[["KEGG"]]) ))
 
@@ -347,7 +352,7 @@ analyseGenesets <- function(
         results[[geneset_name]] <- runGMT(
             foreground_ids, background_ids,
             gmt_files[[geneset_name]],
-            annotation)
+            annotations)
 
         message(paste0( "- nrow ", geneset_name, ": ", nrow(results[[geneset_name]]) ))
     }

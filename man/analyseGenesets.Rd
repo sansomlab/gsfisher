@@ -4,7 +4,7 @@
 \alias{analyseGenesets}
 \title{A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files}
 \usage{
-analyseGenesets(foreground_ids, background_ids, annotation,
+analyseGenesets(foreground_ids, background_ids, annotations,
   kegg_pathways = NULL, gmt_files = c(), species = "hs")
 }
 \arguments{
@@ -12,13 +12,13 @@ analyseGenesets(foreground_ids, background_ids, annotation,
 
 \item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
 
-\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
 
 \item{kegg_pathways}{List of KEGG gene sets.}
 
 \item{gmt_files}{A named list of GMT file locations.}
 
-\item{species}{The species code, only "hs" or "mm" are supported.}
+\item{species}{Species identifiers (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files

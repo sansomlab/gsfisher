@@ -7,7 +7,7 @@
 fetchKEGG(species = c("hs", "mm"))
 }
 \arguments{
-\item{species}{The species code, only "hs" or "mm" are supported.}
+\item{species}{Species identifiers (only "hs" or "mm" are supported).}
 }
 \value{
 A list of two elements: "genesets" and "geneset_info".

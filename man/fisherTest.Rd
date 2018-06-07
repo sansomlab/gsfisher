@@ -4,7 +4,7 @@
 \alias{fisherTest}
 \title{Perform a single Fisher test for gene set enrichement}
 \usage{
-fisherTest(n, genesets, foreground_ids, background_ids, annotation)
+fisherTest(n, genesets, foreground_ids, background_ids, annotations)
 }
 \arguments{
 \item{n}{A numeric scalar indicating the index of the gene set to test.}
@@ -17,7 +17,7 @@ fisherTest(n, genesets, foreground_ids, background_ids, annotation)
 \item{background_ids}{A list of background ENTREZ ids.
 against which enrichment will be tested (i.e., the gene universe)}
 
-\item{annotation}{A data.frame with at least columns "entrez_id" and "gene_name"
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
 (see \code{fetchAnnotations}).}
 }
 \description{

@@ -4,7 +4,7 @@
 \alias{runKEGG}
 \title{A wrapper function to run Fisher tests for enrichement of KEGG Pathways.}
 \usage{
-runKEGG(foreground_ids, background_ids, keggData = NULL, annotation,
+runKEGG(foreground_ids, background_ids, keggData = NULL, annotations,
   species = c("hs", "mm"))
 }
 \arguments{
@@ -14,9 +14,9 @@ runKEGG(foreground_ids, background_ids, keggData = NULL, annotation,
 
 \item{keggData}{List of KEGG gene sets.}
 
-\item{annotation}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
 
-\item{species}{The species code, only "hs" or "mm" are supported.}
+\item{species}{Species identifiers (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement of KEGG Pathways.

@@ -2,21 +2,24 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runGO}
 \alias{runGO}
-\title{A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
-Depends on the bioconductor org.xx.eg.db and GO.db libraries}
+\title{Run Gene Ontology gene set enrichement}
 \usage{
-runGO(foreground_ids, background_ids, annotation, species = c("hs", "mm"))
+runGO(foreground_ids, background_ids, annotations, species = c("hs", "mm"))
 }
 \arguments{
-\item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes)}
 
-\item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe)}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations)}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations}).}
 
-\item{species}{The species code, only "hs" or "mm" are supported.}
+\item{species}{Species identifiers (only "hs" or "mm" are supported).}
 }
 \description{
-A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
-Depends on the bioconductor org.xx.eg.db and GO.db libraries
+A wrapper function to run Fisher's test for enrichement
+on Gene Ontology (GO) categories.
+Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 }

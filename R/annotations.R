@@ -52,7 +52,7 @@ fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
 
 #' Fetch KEGG pathway annotations
 #'
-#' @param species The species code, only "hs" or "mm" are supported.
+#' @param species Species identifiers (only "hs" or "mm" are supported).
 #'
 #' @return A list of two elements: "genesets" and "geneset_info".
 #'
