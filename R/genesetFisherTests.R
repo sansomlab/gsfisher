@@ -18,14 +18,18 @@
 #' @export
 #'
 #' @examples
+#'
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#'
+#' index <- 1
+#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#'
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotations(species="hs")
-#'
-#' # Create a foreground that is 75% of the first gene set
-#' geneset1 <- ann_hs[1]
-#' geneset1
-#' foreground1 <- head(geneset1[[1]], length(geneset_ex) / 2)
+#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+#' fisherTest(index, ann_gmt, foreground, background, ann_hs)
 #' }
 fisherTest <- function(
     n, genesets, foreground_ids, background_ids, annotation
@@ -90,9 +94,13 @@ fisherTest <- function(
     ## build the result
     result <- c(
         set_name,
-        fg_freq, bg_freq,
-        nfg, nbg, n_set,
-        ft$p.value, ft$estimate,
+        fg_freq,
+        bg_freq,
+        nfg,
+        nbg,
+        n_set,
+        ft$p.value,
+        ft$estimate,
         paste(in_fg, collapse=","),
         paste(in_fg_names, collapse=","))
 
