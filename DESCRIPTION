@@ -1,6 +1,6 @@
 Package: gsfisher
 Title: Geneset Fisher
-Version: 0.1
+Version: 0.2
 Date: 2018-06-04
 Authors@R: c(person("Steve", "Sansom", role=c("aut", "cre"),
     email="stephen.sansom@kennedy.ox.ac.uk"),
