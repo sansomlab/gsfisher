@@ -13,5 +13,9 @@ fetchKEGG(species = c("hs", "mm"))
 Fetch KEGG pathway information.
 }
 \examples{
-kegg <- fetchKEGG(species="hs")
+\dontrun{
+kegg_hs <- fetchKEGG(species="hs")
+kegg_mm <- fetchKEGG(species="mm")
+}
+
 }

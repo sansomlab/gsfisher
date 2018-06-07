@@ -16,9 +16,9 @@
 #' @examples
 #' \dontrun{
 #' ann_hs <- fetchAnnotation(species="hs")
-#' ann_mm <- fetchAnnotation(species="mm")
-#' }
+#' ann_mm <- fetchAnnotation(species="mm")}
 fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
+
     species <- match.arg(species)
 
     if (species == "hs") {
@@ -56,7 +56,9 @@ fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version="latest") {
 #' @export
 #'
 #' @examples
-#' kegg <- fetchKEGG(species="hs")
+#' \dontrun{
+#' kegg_hs <- fetchKEGG(species="hs")
+#' kegg_mm <- fetchKEGG(species="mm")}
 fetchKEGG <- function(species=c("hs", "mm")) {
 
     species <- match.arg(species)
