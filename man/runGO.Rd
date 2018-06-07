@@ -2,21 +2,21 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runGO}
 \alias{runGO}
-\title{Run Gene Ontology gene set enrichement}
+\title{Run gene set enrichement on Gene Ontology categories}
 \usage{
 runGO(foreground_ids, background_ids, annotations, species = c("hs", "mm"))
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
-(e.g. significantly differentially expressed genes)}
+(e.g. significantly differentially expressed genes).}
 
 \item{background_ids}{A list of background ENTREZ ids.
-against which enrichment will be tested (i.e., the gene universe)}
+against which enrichment will be tested (i.e., the gene universe).}
 
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
 (see \code{fetchAnnotations}).}
 
-\item{species}{Species identifiers (only "hs" or "mm" are supported).}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher's test for enrichement

@@ -2,19 +2,39 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runGMT}
 \alias{runGMT}
-\title{A wrapper function to run Fisher tests for enrichement from GMT files}
+\title{Run gene set enrichement on custom gene sets}
 \usage{
 runGMT(foreground_ids, background_ids, gmt_file, annotations)
 }
 \arguments{
-\item{foreground_ids}{The list of entrez ids of interest (e.g. significantly differentially expressed genes).}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes).}
 
-\item{background_ids}{The list of entrez ids againt which enrichment will be tested (i.e. the gene universe).}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe).}
 
-\item{gmt_file}{The location of the GMT file.}
+\item{gmt_file}{path to a GMT file.}
 
-\item{annotations}{A dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotations).}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations}).}
 }
 \description{
-A wrapper function to run Fisher tests for enrichement from GMT files
+A wrapper function to run Fisher tests for enrichement from GMT files.
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- readGMT(gmtFile)
+
+index <- 1
+foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotations(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+runGMT(foreground, background, gmtFile, ann_hs)
+}
+}
+\author{
+Steve Sansom and Kevin-Rue-Albrecht
 }

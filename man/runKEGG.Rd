@@ -2,7 +2,7 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runKEGG}
 \alias{runKEGG}
-\title{A wrapper function to run Fisher tests for enrichement of KEGG Pathways}
+\title{Run gene set enrichement on KEGG pathways}
 \usage{
 runKEGG(foreground_ids, background_ids, keggData = NULL, annotations,
   species = c("hs", "mm"))
@@ -19,7 +19,7 @@ against which enrichment will be tested (i.e., the gene universe).}
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
 (see \code{fetchAnnotations}).}
 
-\item{species}{Species identifiers (only "hs" or "mm" are supported).}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement of KEGG Pathways

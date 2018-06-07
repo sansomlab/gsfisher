@@ -7,7 +7,7 @@
 fetchAnnotations(species = c("hs", "mm"), ensembl_version = NULL)
 }
 \arguments{
-\item{species}{Species identifiers (only "hs" or "mm" are supported).}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 
 \item{ensembl_version}{Version of the ensembl annotation to use,
 passed to \code{biomaRt::useEnsembl}.

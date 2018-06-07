@@ -18,7 +18,7 @@ analyseGenesets(foreground_ids, background_ids, annotations,
 
 \item{gmt_files}{A named list of GMT file locations.}
 
-\item{species}{Species identifiers (only "hs" or "mm" are supported).}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GO categories, KEGG pathways and GMT files
