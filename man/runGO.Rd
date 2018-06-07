@@ -23,3 +23,18 @@ A wrapper function to run Fisher's test for enrichement
 on Gene Ontology (GO) categories.
 Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 }
+\examples{
+
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- readGMT(gmtFile)
+
+index <- 1
+foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotations(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+runGO(foreground, background, ann_hs, "hs")
+}
+}

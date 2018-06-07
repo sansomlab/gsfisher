@@ -218,6 +218,21 @@ runFisherTests <- function(
 #' @importFrom org.Hs.eg.db org.Hs.egGO2ALLEGS
 #'
 #' @export
+#'
+#' @examples
+#'
+#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+#' ann_gmt <- readGMT(gmtFile)
+#'
+#' index <- 1
+#' foreground <- head(ann_gmt[[example]], length(ann_gmt[[example]]) / 2)
+#'
+#' \dontrun{
+#' # Fetch annotations
+#' ann_hs <- fetchAnnotations(species="hs")
+#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+#' runGO(foreground, background, ann_hs, "hs")
+#' }
 runGO <- function(
     foreground_ids, background_ids, annotations, species=c("hs","mm")
 ){
