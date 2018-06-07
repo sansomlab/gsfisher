@@ -466,52 +466,46 @@ runGMT <- function(foreground_ids,
 #' @param species The species code, only "hs" or "mm" are supported.
 #'
 #' @export
-analyseGenesets <- function(foreground_ids,
-                            background_ids,
-                            annotation,
-                            kegg_pathways=NULL,
-                            gmt_files=c(),
-                            species="hs")
-{
-
+analyseGenesets <- function(
+    foreground_ids, background_ids, annotation,
+    kegg_pathways=NULL, gmt_files=c(), species="hs"
+){
     results <- list()
 
     ## runGO
-    print("running GO")
+    message("Running GO ...")
     go_result <- runGO(foreground_ids, background_ids,
                        annotation,
                        species=species)
 
-    print(paste0("nrow GO: ", nrow(go_result)))
+    message(paste0( "- nrow GO: ", nrow(go_result) ))
 
     ## make separate tables for the different GO ontology types
-    for(ontology in unique(go_result$ontology))
-    {
-        temp <- go_result[go_result$ontology==ontology,]
+    for (ontology in unique(go_result$ontology)) {
+        temp <- go_result[go_result$ontology == ontology, ]
         temp$ontology <- NULL
-        results[[paste("GO",ontology, sep=".")]] <- temp
+        results[[paste("GO", ontology, sep=".")]] <- temp
     }
 
     ## runKEGG
-    print("running KEGG")
-    results[["KEGG"]] <- runKEGG(foreground_ids, background_ids,
-                                 kegg_pathways,
-                                 annotation,
-                                 species=species)
+    message("Running KEGG ...")
+    results[["KEGG"]] <- runKEGG(
+        foreground_ids, background_ids,
+        kegg_pathways, annotation, species)
 
-    print(paste0("nrow KEGG:", nrow(results[["KEGG"]])))
+    message(paste0( "- nrow KEGG:", nrow(results[["KEGG"]]) ))
 
     ## runGMTs
-    print("running GMT files")
+    message("Running GMT files ...")
 
-    for(geneset_name in names(gmt_files))
-    {
-        results[[geneset_name]] <- runGMT(foreground_ids, background_ids,
-                                          gmt_file = gmt_files[[geneset_name]],
-                                          annotation)
+    for (geneset_name in names(gmt_files)) {
+        results[[geneset_name]] <- runGMT(
+            foreground_ids, background_ids,
+            gmt_files[[geneset_name]],
+            annotation)
 
-        print(paste0("nrow ",geneset_name,": ",nrow(results[[geneset_name]])))
+        message(paste0( "- nrow ", geneset_name, ": ", nrow(results[[geneset_name]]) ))
     }
 
-    results
+    return(results)
 }
