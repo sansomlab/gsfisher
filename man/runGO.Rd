@@ -14,7 +14,7 @@ runGO(foreground_ids, background_ids, annotations, species = c("hs", "mm"))
 against which enrichment will be tested (i.e., the gene universe).}
 
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotations}).}
+(see \code{fetchAnnotation}).}
 
 \item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
@@ -32,14 +32,14 @@ foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 
 \dontrun{
 # Fetch annotations
-ann_hs <- fetchAnnotations(species="hs")
+ann_hs <- fetchAnnotation(species="hs")
 background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 result <- runGO(foreground, background, ann_hs, "hs")
 }
 }
 \seealso{
 \code{\link{read.gmt}},
-\code{\link{fetchAnnotations}},
+\code{\link{fetchAnnotation}},
 \code{\link{runGenesets}}.
 }
 \author{

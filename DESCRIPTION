@@ -20,4 +20,5 @@ Imports: biomaRt,
     org.Mm.eg.db,
     gplots,
     reshape2,
-    graphics
+    graphics,
+    qusage

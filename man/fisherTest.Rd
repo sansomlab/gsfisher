@@ -18,7 +18,7 @@ fisherTest(n, genesets, foreground_ids, background_ids, annotations)
 against which enrichment will be tested (i.e., the gene universe).}
 
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotations}).}
+(see \code{fetchAnnotation}).}
 }
 \description{
 Perform a single Fisher test for gene set enrichement
@@ -33,7 +33,7 @@ foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
 
 \dontrun{
 # Fetch annotations
-ann_hs <- fetchAnnotations(species="hs")
+ann_hs <- fetchAnnotation(species="hs")
 background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 # Demonstrate significant enrichment for the first gene set
 result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
@@ -41,6 +41,6 @@ result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
 }
 \seealso{
 \code{\link{read.gmt}},
-\code{\link{fetchAnnotations}},
+\code{\link{fetchAnnotation}},
 \code{\link{runFisherTests}}.
 }

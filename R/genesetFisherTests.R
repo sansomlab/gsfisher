@@ -8,13 +8,13 @@
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #'
 #' @importFrom stats fisher.test
 #'
 #' @seealso
 #' \code{\link{read.gmt}},
-#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
 #' @export
@@ -29,7 +29,7 @@
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' # Demonstrate significant enrichment for the first gene set
 #' result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
@@ -119,13 +119,13 @@ fisherTest <- function(
 #' against which enrichment will be tested (i.e., the gene universe)
 #' @param named_geneset_list List of named gene sets.
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #'
 #' @export
 #'
 #' @seealso
 #' \code{\link{read.gmt}},
-#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchAnnotation}},
 #' \code{\link{fisherTest}}.
 #'
 #' @author Steve Sansom
@@ -139,7 +139,7 @@ fisherTest <- function(
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' result <- runFisherTests(ann_gmt, foreground, background, ann_hs)
 #' }
@@ -218,7 +218,7 @@ runFisherTests <- function(
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @importFrom AnnotationDbi select
@@ -230,7 +230,7 @@ runFisherTests <- function(
 #'
 #' @seealso
 #' \code{\link{read.gmt}},
-#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchAnnotation}},
 #' \code{\link{runGenesets}}.
 #'
 #' @author Steve Sansom
@@ -244,7 +244,7 @@ runFisherTests <- function(
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' result <- runGO(foreground, background, ann_hs, "hs")
 #' }
@@ -299,7 +299,7 @@ runGO <- function(
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #' @param keggData A list of KEGG gene sets.
 #' @param species Species identifier (only "hs" or "mm" are supported).
 #'
@@ -307,7 +307,7 @@ runGO <- function(
 #'
 #' @seealso
 #' \code{\link{read.gmt}},
-#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchAnnotation}},
 #' \code{\link{fetchKEGG}},
 #' \code{\link{runGenesets}}.
 #'
@@ -322,7 +322,7 @@ runGO <- function(
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' kegg_hs <- fetchKEGG(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
@@ -358,7 +358,7 @@ runKEGG <- function(
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param gmt_file path to a GMT file.
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #'
 #' @importFrom qusage read.gmt
 #'
@@ -366,7 +366,7 @@ runKEGG <- function(
 #'
 #' @seealso
 #' \code{\link{read.gmt}},
-#' \code{\link{fetchAnnotations}},
+#' \code{\link{fetchAnnotation}},
 #' \code{\link{runGenesets}}.
 #'
 #' @author Steve Sansom
@@ -380,7 +380,7 @@ runKEGG <- function(
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' result <- runGMT(foreground, background, gmtFile, ann_hs)
 #' }
@@ -405,7 +405,7 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param gmt_files A named list of paths to GMT files.
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotations}).
+#' (see \code{fetchAnnotation}).
 #' @param kegg_pathways A list of KEGG gene sets.
 #' @param species Species identifier (only "hs" or "mm" are supported).
 #'
@@ -427,7 +427,7 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 #'
 #' \dontrun{
 #' # Fetch annotations
-#' ann_hs <- fetchAnnotations(species="hs")
+#' ann_hs <- fetchAnnotation(species="hs")
 #' kegg_hs <- fetchKEGG(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 #' result <- analyseGenesets(

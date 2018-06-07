@@ -15,7 +15,7 @@ analyseGenesets(foreground_ids, background_ids, annotations,
 against which enrichment will be tested (i.e., the gene universe).}
 
 \item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotations}).}
+(see \code{fetchAnnotation}).}
 
 \item{kegg_pathways}{A list of KEGG gene sets.}
 
@@ -36,7 +36,7 @@ foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 
 \dontrun{
 # Fetch annotations
-ann_hs <- fetchAnnotations(species="hs")
+ann_hs <- fetchAnnotation(species="hs")
 kegg_hs <- fetchKEGG(species="hs")
 background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
 result <- analyseGenesets(

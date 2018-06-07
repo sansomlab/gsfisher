@@ -25,10 +25,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' ann_hs <- fetchAnnotations(species="hs")
-#' ann_mm <- fetchAnnotations(species="mm")
+#' ann_hs <- fetchAnnotation(species="hs")
+#' ann_mm <- fetchAnnotation(species="mm")
 #' }
-fetchAnnotations <- function(species=c("hs", "mm"), ensembl_version=NULL) {
+fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version=NULL) {
 
     species <- match.arg(species)
 
