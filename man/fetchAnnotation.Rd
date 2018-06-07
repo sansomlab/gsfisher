@@ -22,6 +22,5 @@ Annotation must contain the columns \code{"entrez_id"} and
 \examples{
 \dontrun{
 ann_hs <- fetchAnnotation(species="hs")
-ann_mm <- fetchAnnotation(species="mm")
-}
+ann_mm <- fetchAnnotation(species="mm")}
 }

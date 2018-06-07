@@ -15,7 +15,5 @@ Fetch KEGG pathway information.
 \examples{
 \dontrun{
 kegg_hs <- fetchKEGG(species="hs")
-kegg_mm <- fetchKEGG(species="mm")
-}
-
+kegg_mm <- fetchKEGG(species="mm")}
 }
