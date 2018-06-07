@@ -14,14 +14,25 @@ fisherTest(n, genesets, foreground_ids, background_ids, annotation)
 \item{foreground_ids}{A list of ENTREZ ids of interest
 (e.g. significantly differentially expressed genes)}
 
-\item{background_ids}{A list of background ENTREZ ids
+\item{background_ids}{A list of background ENTREZ ids.
 against which enrichment will be tested (i.e., the gene universe)}
 
-\item{annotation}{A data.frame with columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotations})}
+\item{annotation}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotations}).}
 }
 \description{
 Perform a single Fisher test for gene set enrichement
+}
+\examples{
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotations(species="hs")
+
+# Create a foreground that is 75\% of the first gene set
+geneset1 <- ann_hs[1]
+geneset1
+foreground1 <- head(geneset1[[1]], length(geneset_ex) / 2)
+}
 }
 \seealso{
 \code{\link{fetchAnnotations}}
