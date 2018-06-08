@@ -1,4 +1,3 @@
-
 #' Perform a single Fisher test for gene set enrichement
 #'
 #' @param n A numeric scalar indicating the index of the gene set to test.
@@ -13,7 +12,6 @@
 #' @importFrom stats fisher.test
 #'
 #' @seealso
-#' \code{\link{read.gmt}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
@@ -21,12 +19,12 @@
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' index <- 1
 #' foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
@@ -124,7 +122,7 @@ fisherTest <- function(
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}},
+#' \code{\link{readGMT}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{fisherTest}}.
 #'
@@ -132,11 +130,11 @@ fisherTest <- function(
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
@@ -229,7 +227,6 @@ runFisherTests <- function(
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
@@ -237,11 +234,11 @@ runFisherTests <- function(
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
@@ -270,6 +267,8 @@ runGO <- function(
 
     ## retrieve additional info about the GO categories
     ## and add to the results table
+
+    print(head(results_table))
 
     go_info <- select(
         GO.db, keys=result_table$geneset_id,
@@ -306,7 +305,7 @@ runGO <- function(
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}},
+#' \code{\link{readGMT}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{fetchKEGG}},
 #' \code{\link{runFisherTests}}.
@@ -315,11 +314,11 @@ runGO <- function(
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
@@ -360,12 +359,11 @@ runKEGG <- function(
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotation}).
 #'
-#' @importFrom qusage read.gmt
 #'
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}},
+#' \code{\link{readGMT}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
@@ -373,11 +371,11 @@ runKEGG <- function(
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
@@ -386,7 +384,7 @@ runKEGG <- function(
 #' }
 runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
     ## Get the gene sets
-    gmt <- read.gmt(gmt_file)
+    gmt <- readGMT(gmt_file)
 
     ## Run the fisher tests
     result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotations)
@@ -420,11 +418,11 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
 #'
 #' @examples
 #' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- read.gmt(gmtFile)
-#'
+#' ann_gmt <- readGMT(gmtFile)
+
 #' # Take 50% of the first gene set as an example list of interest
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-#'
+
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")

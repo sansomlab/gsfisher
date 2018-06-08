@@ -8,7 +8,7 @@ mapENTREZhuman2mouse(GMT, ensembl_version = NULL)
 }
 \arguments{
 \item{GMT}{A named list of gene sets
-(e.g., from \code{qusage::read.gmt}).}
+(e.g., from \code{readGMT}).}
 
 \item{ensembl_version}{Version of the ensembl annotation to use,
 passed to \code{biomaRt::useEnsembl}.
@@ -25,7 +25,7 @@ mapENTREZhuman2mouse(ann_gmt, ensembl_version=NULL)
 }
 }
 \seealso{
-\code{\link{read.gmt}}
+\code{\link{readGMT}}
 \code{\link[biomaRt]{useEnsembl}}
 }
 \author{

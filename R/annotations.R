@@ -1,4 +1,3 @@
-
 #' Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart
 #'
 #' Fetches annotations for human ("hs") or mouse ("mm") from the
@@ -108,7 +107,7 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 #' Uses ENSEMBL biomaRt for converting human MSigDB gene sets to mouse.
 #'
 #' @param GMT A named list of gene sets
-#' (e.g., from \code{qusage::read.gmt}).
+#' (e.g., from \code{readGMT}).
 #' @param ensembl_version Version of the ensembl annotation to use,
 #' passed to \code{biomaRt::useEnsembl}.
 #' The default \code{NULL} uses the current annotation release.
@@ -118,7 +117,7 @@ fetchKEGG <- function(species=c("hs", "mm")) {
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}}
+#' \code{\link{readGMT}}
 #' \code{\link[biomaRt]{useEnsembl}}
 #'
 #' @author Steve Sansom
