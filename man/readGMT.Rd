@@ -13,14 +13,11 @@ readGMT(filepath)
 Read gene sets from a GMT file
 }
 \details{
-Deprecated. Use \code{qusage::read.gmt} instead.
+
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)
-}
-\seealso{
-\code{\link{read.gmt}}
 }
 \author{
 Steve Sansom

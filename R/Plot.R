@@ -23,7 +23,7 @@
 #' @export
 #'
 #' @seealso
-#' \code{\link{read.gmt}}
+#' \code{\link{readGMT}}
 #' \code{\link{p.adjust}}
 #'
 #' @author Steve Sansom

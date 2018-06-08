@@ -25,11 +25,9 @@ Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- read.gmt(gmtFile)
-
+ann_gmt <- readGMT(gmtFile)
 # Take 50\% of the first gene set as an example list of interest
 foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
 \dontrun{
 # Fetch annotations
 ann_hs <- fetchAnnotation(species="hs")
@@ -38,7 +36,6 @@ result <- runGO(foreground, background, ann_hs, "hs")
 }
 }
 \seealso{
-\code{\link{read.gmt}},
 \code{\link{fetchAnnotation}},
 \code{\link{runFisherTests}}.
 }

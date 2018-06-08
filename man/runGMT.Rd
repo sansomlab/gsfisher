@@ -23,11 +23,9 @@ A wrapper function to run Fisher tests for enrichement from GMT files.
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- read.gmt(gmtFile)
-
+ann_gmt <- readGMT(gmtFile)
 # Take 50\% of the first gene set as an example list of interest
 foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
 \dontrun{
 # Fetch annotations
 ann_hs <- fetchAnnotation(species="hs")
@@ -36,7 +34,7 @@ result <- runGMT(foreground, background, gmtFile, ann_hs)
 }
 }
 \seealso{
-\code{\link{read.gmt}},
+\code{\link{readGMT}},
 \code{\link{fetchAnnotation}},
 \code{\link{runFisherTests}}.
 }

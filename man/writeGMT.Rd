@@ -7,7 +7,7 @@
 writeGMT(geneset, outfile)
 }
 \arguments{
-\item{geneset}{A list of gene sets  (e.g. from \code{qusage::read.gmt}).}
+\item{geneset}{A list of gene sets  (e.g. from \code{readGMT}).}
 
 \item{outfile}{Path to the output file.}
 }
@@ -16,13 +16,12 @@ Write gene sets to a GMT file
 }
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- read.gmt(gmtFile)
-
+ann_gmt <- readGMT(gmtFile)
 outfile <- tempfile()
 writeGMT(ann_gmt, outfile)
 }
 \seealso{
-\code{\link{read.gmt}}
+\code{\link{readGMT}}
 }
 \author{
 Steve Sansom
