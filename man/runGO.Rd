@@ -40,7 +40,7 @@ result <- runGO(foreground, background, ann_hs, "hs")
 \seealso{
 \code{\link{read.gmt}},
 \code{\link{fetchAnnotation}},
-\code{\link{runGenesets}}.
+\code{\link{runFisherTests}}.
 }
 \author{
 Steve Sansom

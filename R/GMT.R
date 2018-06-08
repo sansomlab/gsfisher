@@ -69,3 +69,7 @@ writeGMT <- function(geneset, outfile) {
 
     return(status)
 }
+
+#' @importFrom qusage read.gmt
+#' @export
+qusage::read.gmt

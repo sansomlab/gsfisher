@@ -231,7 +231,7 @@ runFisherTests <- function(
 #' @seealso
 #' \code{\link{read.gmt}},
 #' \code{\link{fetchAnnotation}},
-#' \code{\link{runGenesets}}.
+#' \code{\link{runFisherTests}}.
 #'
 #' @author Steve Sansom
 #'
@@ -309,7 +309,7 @@ runGO <- function(
 #' \code{\link{read.gmt}},
 #' \code{\link{fetchAnnotation}},
 #' \code{\link{fetchKEGG}},
-#' \code{\link{runGenesets}}.
+#' \code{\link{runFisherTests}}.
 #'
 #' @author Steve Sansom
 #'
@@ -367,7 +367,7 @@ runKEGG <- function(
 #' @seealso
 #' \code{\link{read.gmt}},
 #' \code{\link{fetchAnnotation}},
-#' \code{\link{runGenesets}}.
+#' \code{\link{runFisherTests}}.
 #'
 #' @author Steve Sansom
 #'

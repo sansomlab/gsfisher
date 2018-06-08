@@ -38,7 +38,7 @@ result <- runGMT(foreground, background, gmtFile, ann_hs)
 \seealso{
 \code{\link{read.gmt}},
 \code{\link{fetchAnnotation}},
-\code{\link{runGenesets}}.
+\code{\link{runFisherTests}}.
 }
 \author{
 Steve Sansom

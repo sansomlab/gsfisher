@@ -43,7 +43,7 @@ result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
 \code{\link{read.gmt}},
 \code{\link{fetchAnnotation}},
 \code{\link{fetchKEGG}},
-\code{\link{runGenesets}}.
+\code{\link{runFisherTests}}.
 }
 \author{
 Steve Sansom
