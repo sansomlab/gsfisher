@@ -1,3 +1,9 @@
+# gsfisher 0.3
+
+* Use GSEABase to manage gene set collections.
+* Split internet connections from post-processing.
+* Alias `fetchGeneInfoFromBiomart` to `fetchAnnotation`.
+
 # gsfisher 0.2
 
 * Added a `NEWS.md` file to track changes to the package.

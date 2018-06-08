@@ -25,11 +25,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' ann_hs <- fetchAnnotation(species="hs")
-#' ann_mm <- fetchAnnotation(species="mm")
+#' ann_hs <- fetchGeneInfoFromBiomart(species="hs")
+#' ann_mm <- fetchGeneInfoFromBiomart(species="mm")
 #' }
-fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version=NULL) {
-
+fetchGeneInfoFromBiomart <- function(species=c("hs", "mm"), ensembl_version=NULL){
     species <- match.arg(species)
 
     if (species == "hs") {
@@ -49,7 +48,22 @@ fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version=NULL) {
         attributes=c("ensembl_gene_id", "entrezgene", namecol), mart=ensembl)
 
     colnames(annotation) <- c("ensembl_id", "entrez_id", "gene_name")
+
     return(annotation)
+}
+
+#' @rdname fetchGeneInfoFromBiomart
+#'
+#' @export
+#'
+#' @note
+#' \code{fetchAnnotation} will be deprecated in future versions.
+#' Use \code{fetchGeneInfoFromBiomart} instead.
+fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version=NULL) {
+
+    .Deprecated("fetchGeneInfoFromBiomart")
+
+    fetchGeneInfoFromBiomart(species=species, ensembl_version=ensembl_version)
 }
 
 #' Fetch KEGG pathway annotations
