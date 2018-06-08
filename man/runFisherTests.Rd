@@ -2,19 +2,44 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runFisherTests}
 \alias{runFisherTests}
-\title{Run a set of Fisher tests for geneset enrichement.}
+\title{Run a set of Fisher tests for gene set enrichement}
 \usage{
-runFisherTests(named_geneset_list, foreground_ids, background_ids, annotation)
+runFisherTests(named_geneset_list, foreground_ids, background_ids, annotations)
 }
 \arguments{
-\item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
+\item{named_geneset_list}{List of named gene sets.}
 
-\item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes)}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe)}
 
-\item{named_genesets_list}{a named list of genesets}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotation}).}
 }
 \description{
-Run a set of Fisher tests for geneset enrichement.
+Run a set of Fisher tests for gene set enrichement
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- read.gmt(gmtFile)
+
+# Take 50\% of the first gene set as an example list of interest
+foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotation(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+result <- runFisherTests(ann_gmt, foreground, background, ann_hs)
+}
+}
+\seealso{
+\code{\link{read.gmt}},
+\code{\link{fetchAnnotation}},
+\code{\link{fisherTest}}.
+}
+\author{
+Steve Sansom
 }

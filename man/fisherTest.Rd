@@ -2,22 +2,45 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{fisherTest}
 \alias{fisherTest}
-\title{Perform a single Fisher tests for geneset enrichement.}
+\title{Perform a single Fisher test for gene set enrichement}
 \usage{
-fisherTest(n, genesets = "none", foreground_ids = "none",
-  background_ids = "none", annotation = "none")
+fisherTest(n, genesets, foreground_ids, background_ids, annotations)
 }
 \arguments{
-\item{n}{the index of the geneset to test}
+\item{n}{A numeric scalar indicating the index of the gene set to test.}
 
-\item{genesets}{the list of genesets}
+\item{genesets}{A named list of gene sets.}
 
-\item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes).}
 
-\item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe).}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotation}).}
 }
 \description{
-Perform a single Fisher tests for geneset enrichement.
+Perform a single Fisher test for gene set enrichement
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- read.gmt(gmtFile)
+
+# Take 50\% of the first gene set as an example list of interest
+index <- 1
+foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotation(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+# Demonstrate significant enrichment for the first gene set
+result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
+}
+}
+\seealso{
+\code{\link{read.gmt}},
+\code{\link{fetchAnnotation}},
+\code{\link{runFisherTests}}.
 }

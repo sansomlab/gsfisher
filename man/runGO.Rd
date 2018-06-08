@@ -2,21 +2,46 @@
 % Please edit documentation in R/genesetFisherTests.R
 \name{runGO}
 \alias{runGO}
-\title{A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
-Depends on the bioconductor org.xx.eg.db and GO.db libraries}
+\title{Run gene set enrichement on Gene Ontology categories}
 \usage{
-runGO(foreground_ids, background_ids, annotation, species = "hs")
+runGO(foreground_ids, background_ids, annotations, species = c("hs", "mm"))
 }
 \arguments{
-\item{foreground_ids}{the list of entrez ids of interest (e.g. significantly differentially expressed genes)}
+\item{foreground_ids}{A list of ENTREZ ids of interest
+(e.g. significantly differentially expressed genes).}
 
-\item{background_ids}{the list of entrez ids againt which enrichment will be tested (i.e. the gene universe)}
+\item{background_ids}{A list of background ENTREZ ids.
+against which enrichment will be tested (i.e., the gene universe).}
 
-\item{annotation}{a dataframe with columns "entrez_id" and "gene_name" (see fetchAnnotation)}
+\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
+(see \code{fetchAnnotation}).}
 
-\item{species}{The species code, only "hs" or "mm" are supported.}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
-A wrapper function to run Fisher tests for enrichement of Gene Ontology (GO) categories.
-Depends on the bioconductor org.xx.eg.db and GO.db libraries
+A wrapper function to run Fisher's test for enrichement
+on Gene Ontology (GO) categories.
+Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
+}
+\examples{
+gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
+ann_gmt <- read.gmt(gmtFile)
+
+# Take 50\% of the first gene set as an example list of interest
+foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+
+\dontrun{
+# Fetch annotations
+ann_hs <- fetchAnnotation(species="hs")
+background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
+result <- runGO(foreground, background, ann_hs, "hs")
+}
+}
+\seealso{
+\code{\link{read.gmt}},
+\code{\link{fetchAnnotation}},
+\code{\link{runFisherTests}}.
+}
+\author{
+Steve Sansom
 }
