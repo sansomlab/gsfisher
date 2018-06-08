@@ -31,6 +31,12 @@ fetchKeggGeneSets <- function(species=c("hs", "mm")){
     # Get table of mapping between ENTREZ GeneID and KEGG PathwayID
     geneset_table <- getGeneKEGGLinks(species.KEGG=kegg_species)
 
+    dupIdx <- duplicated(geneset_table)
+    if (any(dupIdx)) {
+        geneset_table <- geneset_table[!dupIdx, ]
+        message(sum(dupIdx), " duplicated records removed.")
+    }
+
     # Split table into named list of gene sets
     geneset_list <- tapply(geneset_table$GeneID, geneset_table$PathwayID, "c")
 
