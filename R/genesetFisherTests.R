@@ -33,19 +33,8 @@
 #' result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
 #' }
 fisherTest <- function(
-    n, genesets, foreground_ids, background_ids, annotations
-){
-
-    ## ensure we are working with character vectors
-    ## remove missing values
-    ## ensure unique
-    foreground_ids <- unique(as.character(foreground_ids[!is.na(foreground_ids)]))
-    background_ids <- unique(as.character(background_ids[!is.na(background_ids)]))
-
-    ## ensure background set contains the foreground_ids
-    background_ids <- unique(c(foreground_ids, background_ids))
-
-    set_name <- names(genesets)[n]
+    n, genesets, foreground_ids, background_ids, symbols){
+  
     set <- genesets[[n]]
     n_set <- length(set)
 
@@ -61,7 +50,10 @@ fisherTest <- function(
     if(nfg==0) { return(NA) }
 
     ## get the gene symbols of the gene set members in the foreground set
-    in_fg_names <- unique(annotations$gene_name[annotations$entrez_id %in% in_fg])
+    ##in_fg_names <- unique(annotations$gene_name[annotations$entrez_id %in% in_fg])
+    in_fg_names <- as.vector(symbols[in_fg])
+    #  NA #na.omit(as.vector(unlist(
+     # AnnotationDbi::mget(in_fg, SYMBOL, ifnotfound = NA))))
 
     ## get the intersection with the background set
     nbg <- length(intersect(set, background_ids))
@@ -88,15 +80,11 @@ fisherTest <- function(
     ## run one sided fishers' exact test
     ft <- fisher.test(ct, alternative="g")
 
-    ## get frequencies
-    fg_freq <- nfg / lfg
-    bg_freq <- nbg / lbg
-
     ## build the result
     result <- c(
-        set_name,
-        fg_freq,
-        bg_freq,
+        names(genesets)[n], # set_name
+        nfg / lfg, # foreground frequency
+        nbg / lbg, # background frequency
         nfg,
         nbg,
         n_set,
@@ -106,7 +94,7 @@ fisherTest <- function(
         paste(in_fg_names, collapse=","))
 
     ## return results vector
-    return(as.vector(result))
+    result
 }
 
 #' Run a set of Fisher tests for gene set enrichement
@@ -118,6 +106,9 @@ fisherTest <- function(
 #' @param named_geneset_list List of named gene sets.
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotation}).
+#'
+#' @importFrom org.Mm.eg.db org.Mm.egSYMBOL
+#' @importFrom org.Hs.eg.db org.Hs.egSYMBOL
 #'
 #' @export
 #'
@@ -145,8 +136,22 @@ runFisherTests <- function(
     named_geneset_list,
     foreground_ids,
     background_ids,
-    annotations
+    SYMBOL
 ){
+    
+    ## ensure we are working with character vectors
+    ## remove missing values
+    ## ensure unique
+    foreground_ids <- unique(as.character(foreground_ids[!is.na(foreground_ids)]))
+    background_ids <- unique(as.character(background_ids[!is.na(background_ids)]))
+  
+    ## ensure background set contains the foreground_ids
+    background_ids <- unique(c(foreground_ids, background_ids))
+    
+    symbols <- as.vector(unlist(AnnotationDbi::mget(foreground_ids, SYMBOL, ifnotfound = NA)))
+    names(symbols) <- foreground_ids
+    
+    message("running the fisher tests")
     ## annotations must contain columns
     ## entrez_id, gene_name
     result <- lapply(
@@ -155,8 +160,10 @@ runFisherTests <- function(
         genesets=named_geneset_list,
         foreground_ids=foreground_ids,
         background_ids=background_ids,
-        annotations=annotations)
-
+        symbols=symbols)
+    
+    message("fisher tests complete")
+    
     ## remove the empty results (test not performed)
     ## this may have implications for multiple testing correction
     result <- result[!sapply(
@@ -183,9 +190,7 @@ runFisherTests <- function(
             matrix(unlist(result), ncol=length(result[[1]]), byrow=TRUE),
             stringsAsFactors=FALSE)
 
-
         names(result_table) <- headings
-
 
         ## reorder
         result_table <- result_table[
@@ -205,284 +210,3 @@ runFisherTests <- function(
     return(result_table)
 }
 
-#' Run gene set enrichement on Gene Ontology categories
-#'
-#' A wrapper function to run Fisher's test for enrichement
-#' on Gene Ontology (GO) categories.
-#' Depends on the bioconductor \code{org.xx.eg.db} and \code{GO.db} packages.
-#'
-#' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes).
-#' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe).
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
-#' @param species Species identifier (only "hs" or "mm" are supported).
-#'
-#' @importFrom AnnotationDbi select
-#' @importFrom GO.db GO.db
-#' @importFrom org.Mm.eg.db org.Mm.egGO2ALLEGS
-#' @importFrom org.Hs.eg.db org.Hs.egGO2ALLEGS
-#'
-#' @export
-#'
-#' @seealso
-#' \code{\link{fetchAnnotation}},
-#' \code{\link{runFisherTests}}.
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
-#' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runGO(foreground, background, ann_hs, "hs")
-#' }
-runGO <- function(
-    foreground_ids, background_ids, annotations, species=c("hs","mm")
-){
-    species <- match.arg(species)
-
-    ## Sanity check
-    if (length(foreground_ids) == 0) { stop("No foreground genes") }
-
-    ## Get the gene sets
-    if (species == "hs") {
-        genesets <- as.list(org.Hs.egGO2ALLEGS)
-    }
-    if (species == "mm") {
-        genesets <- as.list(org.Mm.egGO2ALLEGS)
-    }
-
-    ## run the fisher tests
-    result_table <- runFisherTests(
-        genesets, foreground_ids, background_ids, annotations)
-
-    ## retrieve additional info about the GO categories
-    ## and add to the results table
-
-    print(head(results_table))
-
-    go_info <- select(
-        GO.db, keys=result_table$geneset_id,
-        columns=c("TERM", "ONTOLOGY"), keytype="GOID")
-
-    ## ensure congruence
-    rownames(go_info) <- go_info$GOID
-
-    result_table$description <- go_info[result_table$geneset_id, "TERM"]
-    result_table$ontology <- go_info[result_table$geneset_id, "ONTOLOGY"]
-
-    first_cols <- c("geneset_id", "description", "ontology")
-    other_cols <- colnames(result_table)[!colnames(result_table) %in% first_cols]
-
-    result_table <- result_table[,c(first_cols, other_cols)]
-
-    return(result_table)
-}
-
-
-#' Run gene set enrichement on KEGG pathways
-#'
-#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
-#'
-#' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes).
-#' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe).
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
-#' @param keggData A list of KEGG gene sets.
-#' @param species Species identifier (only "hs" or "mm" are supported).
-#'
-#' @export
-#'
-#' @seealso
-#' \code{\link{readGMT}},
-#' \code{\link{fetchAnnotation}},
-#' \code{\link{fetchKEGG}},
-#' \code{\link{runFisherTests}}.
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
-#' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' kegg_hs <- fetchKEGG(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
-#' }
-runKEGG <- function(
-    foreground_ids, background_ids, keggData = NULL, annotations,
-    species=c("hs", "mm")
-){
-    species <- match.arg(species)
-
-    if (is.null(keggData)) { keggData <- fetchKEGG(species=species) }
-
-    result_table <- runFisherTests(
-        keggData$genesets, foreground_ids, background_ids, annotations)
-
-    result_table$description <- keggData$geneset_info[result_table$geneset_id, "description"]
-
-    first_cols <- c("geneset_id", "description")
-    other_cols <- colnames(result_table)[!colnames(result_table) %in% first_cols]
-
-    result_table <- result_table[,c(first_cols, other_cols)]
-
-    return(result_table)
-}
-
-#' Run gene set enrichement on custom gene sets
-#'
-#' A wrapper function to run Fisher tests for enrichement from GMT files.
-#'
-#' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes).
-#' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe).
-#' @param gmt_file path to a GMT file.
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
-#'
-#'
-#' @export
-#'
-#' @seealso
-#' \code{\link{readGMT}},
-#' \code{\link{fetchAnnotation}},
-#' \code{\link{runFisherTests}}.
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
-#' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runGMT(foreground, background, gmtFile, ann_hs)
-#' }
-runGMT <- function(foreground_ids, background_ids, gmt_file, annotations) {
-    ## Get the gene sets
-    gmt <- readGMT(gmt_file)
-
-    ## Run the fisher tests
-    result_table <- runFisherTests(gmt, foreground_ids, background_ids, annotations)
-
-    return(result_table)
-}
-
-#' Wrapped to run gene set enrichement on multiple annotation databases
-#'
-#' A wrapper function to run Fisher tests for enrichement from GO categories,
-#' KEGG pathways and GMT files
-#'
-#' @param foreground_ids A list of ENTREZ ids of interest
-#' (e.g. significantly differentially expressed genes).
-#' @param background_ids A list of background ENTREZ ids.
-#' against which enrichment will be tested (i.e., the gene universe).
-#' @param gmt_files A named list of paths to GMT files.
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
-#' @param kegg_pathways A list of KEGG gene sets.
-#' @param species Species identifier (only "hs" or "mm" are supported).
-#'
-#' @export
-#'
-#' @seealso
-#' \code{\link{runGO}},
-#' \code{\link{runKEGG}},
-#' \code{\link{runGMT}}.
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
-
-#' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' kegg_hs <- fetchKEGG(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- analyseGenesets(
-#'     foreground, background, ann_hs,
-#'     kegg_hs, gmt_files=c(extdata=gmtFile), species="hs")
-#' }
-analyseGenesets <- function(
-    foreground_ids, background_ids, annotations,
-    kegg_pathways=NULL, gmt_files=c(), species=c("hs", "mm")
-){
-    species <- match.arg(species)
-
-    if (length(gmt_files)) {
-        if (is.null(names(gmt_files))) {
-            print(gmt_files)
-            stop("names(gmt_files) cannot be NULL")
-        }
-        if (any(names(gmt_files) == "")) {
-            print(gmt_files)
-            stop("All elements of gmt_files must be named")
-        }
-    }
-
-    results <- list()
-
-    ## runGO
-    message("Running GO ...")
-    go_result <- runGO(foreground_ids, background_ids, annotations, species=species)
-
-    message(paste0( "- nrow GO: ", nrow(go_result) ))
-
-    ## make separate tables for the different GO ontology types
-    for (ontology in unique(go_result$ontology)) {
-        temp <- go_result[go_result$ontology == ontology, ]
-        temp$ontology <- NULL
-        results[[paste("GO", ontology, sep=".")]] <- temp
-    }
-
-    ## runKEGG
-    message("Running KEGG ...")
-    results[["KEGG"]] <- runKEGG(
-        foreground_ids, background_ids, kegg_pathways, annotations, species)
-
-    message(paste0( "- nrow KEGG:", nrow(results[["KEGG"]]) ))
-
-    ## runGMTs
-    message("Running GMT files ...")
-
-    for (geneset_name in names(gmt_files)) {
-        message("- Running ", geneset_name, " ...")
-        results[[geneset_name]] <- runGMT(
-            foreground_ids, background_ids,
-            gmt_files[[geneset_name]],
-            annotations)
-
-        message(paste0( "- nrow ", geneset_name, ": ", nrow(results[[geneset_name]]) ))
-    }
-
-    return(results)
-}

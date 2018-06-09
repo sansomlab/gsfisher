@@ -169,3 +169,75 @@ mapENTREZhuman2mouse <- function(GMT, ensembl_version=NULL) {
 
     return(mmGMT)
 }
+
+# Get the org.Xx.eg.db SYMBOL bimap object.
+#' @param species Species, "mm" or "hs"
+#' @export
+getSYMBOL <- function(species=c("mm","hs"))
+{
+  if(species=="hs") {
+    message("getting human gene symbols")
+    require(org.Hs.eg.db)
+    SYMBOL <- org.Hs.egSYMBOL
+  } else if (species=="mm") {
+    message("getting mouse gene symbols")
+    require(org.Mm.eg.db)
+    SYMBOL <- org.Mm.egSYMBOL
+  } else { stop("species not recognised") }
+  SYMBOL
+}
+
+#' Get the org.Xx.eg.db GO2ALLEGS bimap object.
+#' @param species Species, "mm" or "hs"
+#' @export
+getGO <- function(species=c("mm","hs"))
+{
+  require(AnnotationDbi)
+  species <- match.arg(species)
+  if (species == "hs") {
+    require(org.Hs.eg.db)
+    genesets <- as.list(org.Hs.egGO2ALLEGS)
+  } else if (species == "mm") {
+    require(org.Mm.eg.db)
+    genesets <- as.list(org.Mm.egGO2ALLEGS)
+  } else { stop("species not recognised") }
+  genesets
+}
+
+#' Get the org.Xx.eg.db ENSEMBL bimap object
+#' @param species Species, "mm" or "hs"
+#' @export
+getENSEMBL <- function(species=c("mm","hs"))
+{
+  require(AnnotationDbi)
+  species <- match.arg(species)
+  if(species=="hs") {
+  require(org.Hs.eg.db)
+  ENSEMBL <- org.Hs.egENSEMBL
+  } else if (species=="mm") {
+  require(org.Mm.eg.db)
+  ENSEMBL <- org.Mm.egENSEMBL
+  } else { stop("species not recognised") }
+  ENSEMBL
+}
+
+#' Translate ensembl gene ids to entrez gene ids
+#' @param ensembl_ids A vector of ensembl gene_ids
+#' @param ENSEMBL A org.Xx.eg.db ENSEMBL bimap object.
+#' @param species Either "mm" or "hs".
+#' 
+#' @export
+ensembl2entrez <- function(ensembl_ids, ENSEMBL=NULL,species=c("mm","hs"))
+{
+  
+  if(is.null(ENSEMBL)) {
+    species <- match.arg(species)
+    ENSEMBL <- getENSEMBL(species)
+  }
+  
+  entrez <- na.omit(as.vector(unlist(AnnotationDbi::mget(
+    ensembl_ids, revmap(ENSEMBL),ifnotfound = NA))))
+  
+  entrez
+}
+  

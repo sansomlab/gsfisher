@@ -4,7 +4,7 @@
 \alias{fisherTest}
 \title{Perform a single Fisher test for gene set enrichement}
 \usage{
-fisherTest(n, genesets, foreground_ids, background_ids, annotations)
+fisherTest(n, genesets, foreground_ids, background_ids, symbols)
 }
 \arguments{
 \item{n}{A numeric scalar indicating the index of the gene set to test.}

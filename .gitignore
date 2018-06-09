@@ -1,6 +1,7 @@
 # ignore R project files
 *.Rproj
 .Rhistory
+Rprof.out
 
 # ignore python compilation files
 *.py[cod]

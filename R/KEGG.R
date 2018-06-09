@@ -1,87 +1,22 @@
-
-#' Read gene sets from a GMT file
+#' Run gene set enrichement on KEGG pathways
 #'
-#' @param filepath The location of the GMT file.
-#' @details
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-readGMT <- function(filepath) {
-
-    conn = file(filepath, "r")
-    genesets <- list()
-
-    while ( TRUE ) {
-        line = readLines(conn, n=1)
-        if ( length(line) == 0 ) {
-            break
-        } else {
-            contents <- strsplit(line, "\t")[[1]]
-            genesets[[contents[1]]] <- contents[3:length(contents)]
-        }
-    }
-
-    close(conn)
-
-    return(genesets)
-}
-
-#' Write gene sets to a GMT file
-#'
-#' @param geneset A list of gene sets  (e.g. from \code{readGMT}).
-#' @param outfile Path to the output file.
-#'
-#' @seealso
-#' \code{\link{readGMT}}
-#'
-#' @export
-#'
-#' @author Steve Sansom
-#'
-#' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-
-#' outfile <- tempfile()
-#' writeGMT(ann_gmt, outfile)
-writeGMT <- function(geneset, outfile) {
-    conn <- file(outfile)
-
-    lines <- c()
-    for (category in names(geneset)) {
-        contents <- c(category, "gsFisher.writeGMT", geneset[[category]])
-        line <- paste(contents, collapse="\t")
-        lines <- c(lines,line)
-    }
-
-    writeLines(lines, conn)
-    status <- close(conn)
-
-    return(status)
-}
-
-#' Run gene set enrichement on custom gene sets
-#'
-#' A wrapper function to run Fisher tests for enrichement from GMT files.
+#' A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
 #'
 #' @param foreground_ids A list of ENTREZ ids of interest
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param gmt_file path to a GMT file.
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotation}).
-#'
+#' @param keggData A list of KEGG gene sets.
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #'
 #' @export
 #'
 #' @seealso
 #' \code{\link{readGMT}},
 #' \code{\link{fetchAnnotation}},
+#' \code{\link{fetchKEGG}},
 #' \code{\link{runFisherTests}}.
 #'
 #' @author Steve Sansom
@@ -96,14 +31,21 @@ writeGMT <- function(geneset, outfile) {
 #' \dontrun{
 #' # Fetch annotations
 #' ann_hs <- fetchAnnotation(species="hs")
+#' kegg_hs <- fetchKEGG(species="hs")
 #' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runGMT(foreground, background, gmtFile, ann_hs)
+#' result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
 #' }
-runGMT <- function(foreground_ids, background_ids, gmt_file, species=c("mm","hs"), SYMBOL=NULL) {
-  ## Get the gene sets
-  gmt <- readGMT(gmt_file)
-  
+runKEGG <- function(
+  foreground_ids, background_ids, keggData = NULL, SYMBOL=NULL,
+  species=c("hs", "mm")
+){
   species <- match.arg(species)
+  
+  if (is.null(keggData)) 
+  { 
+    message("getting KEGG pathways")
+    keggData <- fetchKEGG(species=species) 
+  }
   
   if(is.null(SYMBOL))
   {
@@ -111,38 +53,44 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, species=c("mm","hs"
     SYMBOL <- getSYMBOL(species) 
   }
   
-  ## Run the fisher tests
-  result_table <- runFisherTests(gmt, foreground_ids, background_ids, SYMBOL)
+  result_table <- runFisherTests(
+    keggData$genesets, foreground_ids, background_ids, SYMBOL)
+  
+  result_table$description <- keggData$geneset_info[result_table$geneset_id, "description"]
+  
+  first_cols <- c("geneset_id", "description")
+  other_cols <- colnames(result_table)[!colnames(result_table) %in% first_cols]
+  
+  result_table <- result_table[,c(first_cols, other_cols)]
   
   return(result_table)
 }
 
-
-#' Run GMT analysis on a multi-sample results table.
+#' Run KEGG analysis on a multi-sample results table.
 #' @param results A multi-sample results table
 #' @param species Either "mm" or "hs"
 #' @param background_ids A vector of ENSEMBL gene ids. If NULL, taken from results.
 #' @param sample_col The column in results that indicates the sample
-#' @param gmt_file A GMT file.
+#' @param keggData A list of KEGG gene sets.
+#' (see \code{fetchKegg}).
 #' @param p_col The column containing the p-values to use
 #' @param p_threshold The significance threshold.
 #' 
 #' @export
-runGMT.all <- function(results=NULL,
+runKEGG.all <- function(results=NULL,
                         species=c("mm","hs"),
                         background_ids=NULL, 
                         sample_col="cluster",
-                        gmt_file=NULL,
+                        keggData=NULL,
                         p_col="p_val_adj",
                         p_threshold=0.1)
 {
   begin <- TRUE
   
   species <- match.arg(species)
-  if(is.null(gmt_file)) {
-     stop("GMT file must be specified")
+  if(is.null(keggData)) {
+  keggData <- fetchKEGG(species)
   }
-  
   SYMBOL <- getSYMBOL(species)
   ENSEMBL <- getENSEMBL(species)
   
@@ -150,7 +98,7 @@ runGMT.all <- function(results=NULL,
   {
     message("working on sample:", sample)
     data <- results[results[[sample_col]]==sample,]
-
+    
     if(is.null(background_ids))
     {
       background <- ensembl2entrez(data$gene_id, ENSEMBL)
@@ -160,12 +108,12 @@ runGMT.all <- function(results=NULL,
     
     foreground <- data$gene_id[data[[p_col]] <= p_threshold]
     foreground <- ensembl2entrez(foreground, ENSEMBL)
-
-    tmp <- runGMT(foreground_ids = foreground,
-                   background_ids = background,
-                   gmt_file=gmt_file,
-                   SYMBOL=SYMBOL,
-                   species = species)
+    
+    tmp <- runKEGG(foreground_ids = foreground,
+                 background_ids = background,
+                 keggData=keggData,
+                 SYMBOL=SYMBOL,
+                 species = species)
     
     tmp[[sample_col]] <- sample 
     
@@ -178,5 +126,6 @@ runGMT.all <- function(results=NULL,
   }
   res
 }
+
 
 

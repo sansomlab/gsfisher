@@ -4,7 +4,7 @@
 \alias{runFisherTests}
 \title{Run a set of Fisher tests for gene set enrichement}
 \usage{
-runFisherTests(named_geneset_list, foreground_ids, background_ids, annotations)
+runFisherTests(named_geneset_list, foreground_ids, background_ids, SYMBOL)
 }
 \arguments{
 \item{named_geneset_list}{List of named gene sets.}
