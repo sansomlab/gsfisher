@@ -169,3 +169,109 @@ mapENTREZhuman2mouse <- function(GMT, ensembl_version=NULL) {
 
     return(mmGMT)
 }
+
+# Get the org.Xx.eg.db SYMBOL bimap object.
+#' @param species Species, "mm" or "hs"
+#' 
+#' @export
+#' 
+#' @importFrom org.Mm.eg.db org.Mm.egSYMBOL
+#' @importFrom org.Hs.eg.db org.Hs.egSYMBOL
+getSYMBOL <- function(species=c("mm","hs"))
+{
+  if(species=="hs") {
+    message("getting human gene symbols")
+    require(org.Hs.eg.db)
+    SYMBOL <- org.Hs.egSYMBOL
+  } else if (species=="mm") {
+    message("getting mouse gene symbols")
+    require(org.Mm.eg.db)
+    SYMBOL <- org.Mm.egSYMBOL
+  } else { stop("species not recognised") }
+  SYMBOL
+}
+
+#' Get the org.Xx.eg.db GO2ALLEGS bimap object.
+#' @param species Species, "mm" or "hs"
+#' 
+#' 
+#' @export
+getGO <- function(species=c("mm","hs"))
+{
+  require(AnnotationDbi)
+  species <- match.arg(species)
+  if (species == "hs") {
+    require(org.Hs.eg.db)
+    genesets <- as.list(org.Hs.egGO2ALLEGS)
+  } else if (species == "mm") {
+    require(org.Mm.eg.db)
+    genesets <- as.list(org.Mm.egGO2ALLEGS)
+  } else { stop("species not recognised") }
+  genesets
+}
+
+#' Get the org.Xx.eg.db ENSEMBL bimap object
+#' @param species Species, "mm" or "hs"
+#' @export
+getENSEMBL <- function(species=c("mm","hs"))
+{
+  require(AnnotationDbi)
+  species <- match.arg(species)
+  if(species=="hs") {
+  require(org.Hs.eg.db)
+  ENSEMBL <- org.Hs.egENSEMBL
+  } else if (species=="mm") {
+  require(org.Mm.eg.db)
+  ENSEMBL <- org.Mm.egENSEMBL
+  } else { stop("species not recognised") }
+  ENSEMBL
+}
+
+#' Translate ensembl gene ids to entrez gene ids
+#' @param ensembl_ids A vector of ensembl gene_ids
+#' @param ENSEMBL A org.Xx.eg.db ENSEMBL bimap object.
+#' @param species Either "mm" or "hs".
+#' 
+#' @export
+ensembl2entrez <- function(ensembl_ids, ENSEMBL=NULL,species=c("mm","hs"))
+{
+  
+  if(is.null(ENSEMBL)) {
+    species <- match.arg(species)
+    ENSEMBL <- getENSEMBL(species)
+  }
+  
+  entrez <- na.omit(as.vector(unlist(AnnotationDbi::mget(
+    ensembl_ids, revmap(ENSEMBL),ifnotfound = NA))))
+  
+  entrez
+}
+
+#' Verify input gene id type and return entrez identifiers
+#' @param gene_ids A character vector of gene identifiers
+#' @param gene_id_type Either "ensembl" or "entrez"
+#' @param species Either "mm" or "hs"
+getEntrez <- function(gene_ids,gene_id_type=c("ensembl","entrez"), species=c("mm","hs"))
+{
+  gene_id_type <- match.arg(gene_id_type)
+  species <- match.arg(species)
+  
+  ENSEMBL <- getENSEMBL(species)
+  
+  if(gene_id_type == "ensembl")
+  {
+    if(!startsWith(gene_ids[1],"ENS")) {
+      stop("Ensembl gene_ids specified but not supplied")
+    }
+    entrez_ids <- ensembl2entrez(gene_ids, ENSEMBL)
+  } else if(gene_id_type =="entrez") {
+    if(startsWith(gene_ids[1],"ENS")) {
+      stop('"entrez" gene ids specified but "ensembl" gene ids supplied')
+    } 
+    entrez_ids <- gene_ids
+  } else { stop('gene_id_type must be either "ensembl" or "entrez"') }
+  entrez_ids
+}
+
+
+  
