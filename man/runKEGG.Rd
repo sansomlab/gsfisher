@@ -5,7 +5,7 @@
 \title{Run gene set enrichement on KEGG pathways}
 \usage{
 runKEGG(foreground_ids, background_ids, keggData = NULL, SYMBOL = NULL,
-  species = c("hs", "mm"))
+  gene_id_type = c("entrez", "ensembl"), species = c("hs", "mm"))
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
@@ -16,10 +16,9 @@ against which enrichment will be tested (i.e., the gene universe).}
 
 \item{keggData}{A list of KEGG gene sets.}
 
-\item{species}{Species identifier (only "hs" or "mm" are supported).}
+\item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 
-\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotation}).}
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement of KEGG Pathways.
@@ -30,16 +29,11 @@ ann_gmt <- readGMT(gmtFile)
 # Take 50\% of the first gene set as an example list of interest
 foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 \dontrun{
-# Fetch annotations
-ann_hs <- fetchAnnotation(species="hs")
-kegg_hs <- fetchKEGG(species="hs")
-background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
+# TODO
 }
 }
 \seealso{
 \code{\link{readGMT}},
-\code{\link{fetchAnnotation}},
 \code{\link{fetchKEGG}},
 \code{\link{runFisherTests}}.
 }

@@ -5,6 +5,7 @@
 \title{Run GO analysis on a multi-sample results table.}
 \usage{
 runGO.all(results = NULL, species = c("mm", "hs"), background_ids = NULL,
+  gene_id_col = "gene_id", gene_id_type = c("entrez", "ensembl"),
   sample_col = "cluster", p_col = "p_val_adj", p_threshold = 0.1)
 }
 \arguments{
@@ -12,7 +13,11 @@ runGO.all(results = NULL, species = c("mm", "hs"), background_ids = NULL,
 
 \item{species}{Either "mm" or "hs"}
 
-\item{background_ids}{A vector of ENSEMBL gene ids. If NULL, taken from results.}
+\item{background_ids}{A vector of gene ids. If NULL, taken from results.}
+
+\item{gene_id_col}{The name of the column containing the gene identifiers.}
+
+\item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 
 \item{sample_col}{The column in results that indicates the sample}
 

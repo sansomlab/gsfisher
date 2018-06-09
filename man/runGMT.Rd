@@ -5,7 +5,7 @@
 \title{Run gene set enrichement on custom gene sets}
 \usage{
 runGMT(foreground_ids, background_ids, gmt_file, species = c("mm", "hs"),
-  SYMBOL = NULL)
+  gene_id_type = c("entrez", "ensembl"), SYMBOL = NULL)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
@@ -16,8 +16,7 @@ against which enrichment will be tested (i.e., the gene universe).}
 
 \item{gmt_file}{path to a GMT file.}
 
-\item{annotations}{A data.frame with at least columns "entrez_id" and "gene_name"
-(see \code{fetchAnnotation}).}
+\item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GMT files.
@@ -28,15 +27,11 @@ ann_gmt <- readGMT(gmtFile)
 # Take 50\% of the first gene set as an example list of interest
 foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 \dontrun{
-# Fetch annotations
-ann_hs <- fetchAnnotation(species="hs")
-background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-result <- runGMT(foreground, background, gmtFile, ann_hs)
+# TODO
 }
 }
 \seealso{
 \code{\link{readGMT}},
-\code{\link{fetchAnnotation}},
 \code{\link{runFisherTests}}.
 }
 \author{

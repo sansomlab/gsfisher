@@ -73,15 +73,13 @@ writeGMT <- function(geneset, outfile) {
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
 #' @param gmt_file path to a GMT file.
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
+#' @param gene_id_type Either "entrez" (default) or "ensembl".
 #'
 #'
 #' @export
 #'
 #' @seealso
 #' \code{\link{readGMT}},
-#' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
 #' @author Steve Sansom
@@ -94,16 +92,24 @@ writeGMT <- function(geneset, outfile) {
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 
 #' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runGMT(foreground, background, gmtFile, ann_hs)
+#' # TODO
 #' }
-runGMT <- function(foreground_ids, background_ids, gmt_file, species=c("mm","hs"), SYMBOL=NULL) {
+runGMT <- function(
+  foreground_ids, 
+  background_ids, 
+  gmt_file, 
+  species=c("mm","hs"), 
+  gene_id_type=c("entrez","ensembl"),
+  SYMBOL=NULL) 
+{
   ## Get the gene sets
   gmt <- readGMT(gmt_file)
-  
   species <- match.arg(species)
+  
+  gene_id_type <- match.arg(gene_id_type)
+  
+  foreground_ids <- getEntrez(foreground_ids, gene_id_type, species)
+  background_ids <- getEntrez(background_ids, gene_id_type, species)
   
   if(is.null(SYMBOL))
   {
@@ -124,6 +130,8 @@ runGMT <- function(foreground_ids, background_ids, gmt_file, species=c("mm","hs"
 #' @param background_ids A vector of ENSEMBL gene ids. If NULL, taken from results.
 #' @param sample_col The column in results that indicates the sample
 #' @param gmt_file A GMT file.
+#' @param gene_id_col The column containing the gene identifiers
+#' @param gene_id_type Either "entrez" (default) or "ensembl".
 #' @param p_col The column containing the p-values to use
 #' @param p_threshold The significance threshold.
 #' 
@@ -132,6 +140,8 @@ runGMT.all <- function(results=NULL,
                         species=c("mm","hs"),
                         background_ids=NULL, 
                         sample_col="cluster",
+                        gene_id_col="gene_id",
+                        gene_id_type=c("entrez","ensembl"),
                         gmt_file=NULL,
                         p_col="p_val_adj",
                         p_threshold=0.1)
@@ -139,12 +149,13 @@ runGMT.all <- function(results=NULL,
   begin <- TRUE
   
   species <- match.arg(species)
+  gene_id_type <- match.arg(gene_id_type)
+  
   if(is.null(gmt_file)) {
      stop("GMT file must be specified")
   }
   
   SYMBOL <- getSYMBOL(species)
-  ENSEMBL <- getENSEMBL(species)
   
   for(sample in unique(results[[sample_col]]))
   {
@@ -153,17 +164,17 @@ runGMT.all <- function(results=NULL,
 
     if(is.null(background_ids))
     {
-      background <- ensembl2entrez(data$gene_id, ENSEMBL)
+      background <- data[[gene_id_col]]
     } else {
       background <- background_ids
     }
     
-    foreground <- data$gene_id[data[[p_col]] <= p_threshold]
-    foreground <- ensembl2entrez(foreground, ENSEMBL)
+    foreground <- data[[gene_id_col]][data[[p_col]] <= p_threshold]
 
     tmp <- runGMT(foreground_ids = foreground,
                    background_ids = background,
                    gmt_file=gmt_file,
+                   gene_id_type=gene_id_type,
                    SYMBOL=SYMBOL,
                    species = species)
     

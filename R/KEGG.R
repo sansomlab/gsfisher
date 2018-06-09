@@ -6,16 +6,14 @@
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
 #' @param keggData A list of KEGG gene sets.
 #' @param species Species identifier (only "hs" or "mm" are supported).
+#' @param gene_id_type Either "entrez" (default) or "ensembl".
 #'
 #' @export
 #'
 #' @seealso
 #' \code{\link{readGMT}},
-#' \code{\link{fetchAnnotation}},
 #' \code{\link{fetchKEGG}},
 #' \code{\link{runFisherTests}}.
 #'
@@ -29,17 +27,22 @@
 #' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
 
 #' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' kegg_hs <- fetchKEGG(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runKEGG(foreground, background, kegg_hs, ann_hs, "hs")
+#' # TODO
 #' }
 runKEGG <- function(
-  foreground_ids, background_ids, keggData = NULL, SYMBOL=NULL,
+  foreground_ids, 
+  background_ids, 
+  keggData = NULL, 
+  SYMBOL=NULL,
+  gene_id_type=c("entrez","ensembl"),
   species=c("hs", "mm")
 ){
   species <- match.arg(species)
+  
+  gene_id_type <- match.arg(gene_id_type)
+  
+  foreground_ids <- getEntrez(foreground_ids, gene_id_type, species)
+  background_ids <- getEntrez(background_ids, gene_id_type, species)
   
   if (is.null(keggData)) 
   { 
@@ -71,6 +74,8 @@ runKEGG <- function(
 #' @param species Either "mm" or "hs"
 #' @param background_ids A vector of ENSEMBL gene ids. If NULL, taken from results.
 #' @param sample_col The column in results that indicates the sample
+#' @param gene_id_col The column containing the gene identifiers
+#' @param gene_id_type Either "entrez" (default) or "ensembl".
 #' @param keggData A list of KEGG gene sets.
 #' (see \code{fetchKegg}).
 #' @param p_col The column containing the p-values to use
@@ -81,18 +86,21 @@ runKEGG.all <- function(results=NULL,
                         species=c("mm","hs"),
                         background_ids=NULL, 
                         sample_col="cluster",
+                        gene_id_col="gene_id",
+                        gene_id_type=c("entrez","ensembl"),
                         keggData=NULL,
                         p_col="p_val_adj",
                         p_threshold=0.1)
 {
   begin <- TRUE
   
+  gene_id_type <- match.arg(gene_id_type)
   species <- match.arg(species)
+  
   if(is.null(keggData)) {
   keggData <- fetchKEGG(species)
   }
   SYMBOL <- getSYMBOL(species)
-  ENSEMBL <- getENSEMBL(species)
   
   for(sample in unique(results[[sample_col]]))
   {
@@ -101,18 +109,18 @@ runKEGG.all <- function(results=NULL,
     
     if(is.null(background_ids))
     {
-      background <- ensembl2entrez(data$gene_id, ENSEMBL)
+      background <- data[[gene_id_col]]
     } else {
       background <- background_ids
     }
     
-    foreground <- data$gene_id[data[[p_col]] <= p_threshold]
-    foreground <- ensembl2entrez(foreground, ENSEMBL)
+    foreground <- data[[gene_id_col]][data[[p_col]] <= p_threshold]
     
     tmp <- runKEGG(foreground_ids = foreground,
                  background_ids = background,
                  keggData=keggData,
                  SYMBOL=SYMBOL,
+                 gene_id_type = gene_id_type,
                  species = species)
     
     tmp[[sample_col]] <- sample 

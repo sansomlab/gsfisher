@@ -6,42 +6,33 @@
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
-#' (see \code{fetchAnnotation}).
+#' @param symbols A named vector comprising entrez_id to gene_symbol mappings.
 #'
 #' @importFrom stats fisher.test
 #'
 #' @seealso
-#' \code{\link{fetchAnnotation}},
 #' \code{\link{runFisherTests}}.
 #'
 #' @export
 #'
 #' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' index <- 1
-#' foreground <- head(ann_gmt[[index]], length(ann_gmt[[index]]) / 2)
-
+#' # TODO
 #' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' # Demonstrate significant enrichment for the first gene set
-#' result <- fisherTest(index, ann_gmt, foreground, background, ann_hs)
+#' # TODO
 #' }
 fisherTest <- function(
     n, genesets, foreground_ids, background_ids, symbols){
   
+    ## This is the inner loop...
+  
     set <- genesets[[n]]
+    
     n_set <- length(set)
 
     ## get the set sizes
     lfg <- length(foreground_ids)
     lbg <- length(background_ids)
-
+    
     ## get the intersection with the foreground set
     in_fg <- intersect(set, foreground_ids)
     nfg <- length(in_fg)
@@ -50,14 +41,14 @@ fisherTest <- function(
     if(nfg==0) { return(NA) }
 
     ## get the gene symbols of the gene set members in the foreground set
-    ##in_fg_names <- unique(annotations$gene_name[annotations$entrez_id %in% in_fg])
     in_fg_names <- as.vector(symbols[in_fg])
-    #  NA #na.omit(as.vector(unlist(
-     # AnnotationDbi::mget(in_fg, SYMBOL, ifnotfound = NA))))
 
     ## get the intersection with the background set
     nbg <- length(intersect(set, background_ids))
-
+    
+    ##if(nfg >= nbg) { 
+    ##  stop("There must be more genes in the background than the foreground (2)") }
+    
     ## build the contingency table
     nnfg <- lfg - nfg
     nnbg <- lbg - nbg
@@ -107,30 +98,19 @@ fisherTest <- function(
 #' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotation}).
 #'
-#' @importFrom org.Mm.eg.db org.Mm.egSYMBOL
-#' @importFrom org.Hs.eg.db org.Hs.egSYMBOL
-#'
 #' @export
 #'
 #' @seealso
 #' \code{\link{readGMT}},
-#' \code{\link{fetchAnnotation}},
 #' \code{\link{fisherTest}}.
 #'
 #' @author Steve Sansom
 #'
 #' @examples
-#' gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-#' ann_gmt <- readGMT(gmtFile)
-
-#' # Take 50% of the first gene set as an example list of interest
-#' foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+#' # TODO
 
 #' \dontrun{
-#' # Fetch annotations
-#' ann_hs <- fetchAnnotation(species="hs")
-#' background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-#' result <- runFisherTests(ann_gmt, foreground, background, ann_hs)
+#' # TODO
 #' }
 runFisherTests <- function(
     named_geneset_list,
@@ -144,16 +124,38 @@ runFisherTests <- function(
     ## ensure unique
     foreground_ids <- unique(as.character(foreground_ids[!is.na(foreground_ids)]))
     background_ids <- unique(as.character(background_ids[!is.na(background_ids)]))
-  
+
     ## ensure background set contains the foreground_ids
     background_ids <- unique(c(foreground_ids, background_ids))
+    
+    nfg <- length(foreground_ids)
+    nbg <- length(background_ids)
+    
+    ## Sanity check
+    if (nfg == 0) { stop("No foreground genes") }
+    if (nbg == 0) { stop("No background genes") }
+    
+    if (nfg >= nbg) { 
+      stop("The number of foreground genes must be less than the number of background genes")
+    }
+      
+    fg_percent = round(nfg/nbg*100,2)
+    
+    message("There are: ",length(foreground_ids)," unique foreground ids")
+    message("There are: ",length(background_ids)," unique background ids")
+
+    if(fg_percent < 25) { 
+    message("The foreground ids represent ", fg_percent,"% of the gene universe")
+    } else {
+    message("!! The foreground ids represent ", fg_percent,"% of the gene universe!!",
+            " Is the background correctly specified?")
+    }
     
     symbols <- as.vector(unlist(AnnotationDbi::mget(foreground_ids, SYMBOL, ifnotfound = NA)))
     names(symbols) <- foreground_ids
     
     message("running the fisher tests")
-    ## annotations must contain columns
-    ## entrez_id, gene_name
+    #  n, genesets, foreground_ids, background_ids, symbols
     result <- lapply(
         seq_along(names(named_geneset_list)),
         "fisherTest",

@@ -5,7 +5,8 @@
 \title{Run KEGG analysis on a multi-sample results table.}
 \usage{
 runKEGG.all(results = NULL, species = c("mm", "hs"),
-  background_ids = NULL, sample_col = "cluster", keggData = NULL,
+  background_ids = NULL, sample_col = "cluster", gene_id_col = "gene_id",
+  gene_id_type = c("entrez", "ensembl"), keggData = NULL,
   p_col = "p_val_adj", p_threshold = 0.1)
 }
 \arguments{
@@ -16,6 +17,10 @@ runKEGG.all(results = NULL, species = c("mm", "hs"),
 \item{background_ids}{A vector of ENSEMBL gene ids. If NULL, taken from results.}
 
 \item{sample_col}{The column in results that indicates the sample}
+
+\item{gene_id_col}{The column containing the gene identifiers}
+
+\item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 
 \item{keggData}{A list of KEGG gene sets.
 (see \code{fetchKegg}).}

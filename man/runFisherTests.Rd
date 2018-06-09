@@ -22,20 +22,13 @@ against which enrichment will be tested (i.e., the gene universe)}
 Run a set of Fisher tests for gene set enrichement
 }
 \examples{
-gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
-ann_gmt <- readGMT(gmtFile)
-# Take 50\% of the first gene set as an example list of interest
-foreground <- head(ann_gmt[[1]], length(ann_gmt[[1]]) / 2)
+# TODO
 \dontrun{
-# Fetch annotations
-ann_hs <- fetchAnnotation(species="hs")
-background <- subset(ann_hs, !is.na(entrez_id), "entrez_id", drop=TRUE)
-result <- runFisherTests(ann_gmt, foreground, background, ann_hs)
+# TODO
 }
 }
 \seealso{
 \code{\link{readGMT}},
-\code{\link{fetchAnnotation}},
 \code{\link{fisherTest}}.
 }
 \author{

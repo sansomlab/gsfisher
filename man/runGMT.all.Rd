@@ -5,8 +5,9 @@
 \title{Run GMT analysis on a multi-sample results table.}
 \usage{
 runGMT.all(results = NULL, species = c("mm", "hs"), background_ids = NULL,
-  sample_col = "cluster", gmt_file = NULL, p_col = "p_val_adj",
-  p_threshold = 0.1)
+  sample_col = "cluster", gene_id_col = "gene_id",
+  gene_id_type = c("entrez", "ensembl"), gmt_file = NULL,
+  p_col = "p_val_adj", p_threshold = 0.1)
 }
 \arguments{
 \item{results}{A multi-sample results table}
@@ -16,6 +17,10 @@ runGMT.all(results = NULL, species = c("mm", "hs"), background_ids = NULL,
 \item{background_ids}{A vector of ENSEMBL gene ids. If NULL, taken from results.}
 
 \item{sample_col}{The column in results that indicates the sample}
+
+\item{gene_id_col}{The column containing the gene identifiers}
+
+\item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 
 \item{gmt_file}{A GMT file.}
 
