@@ -1,6 +1,8 @@
 # ignore R project files
 *.Rproj
+.RData
 .Rhistory
+.Rbuildignore
 Rprof.out
 
 # ignore python compilation files
