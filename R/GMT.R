@@ -4,6 +4,8 @@
 #' @param filepath The location of the GMT file.
 #' @details
 #'
+#' @export
+#'
 #' @author Steve Sansom
 #'
 #' @examples
@@ -95,32 +97,32 @@ writeGMT <- function(geneset, outfile) {
 #' # TODO
 #' }
 runGMT <- function(
-  foreground_ids, 
-  background_ids, 
-  gmt_file, 
-  species=c("mm","hs"), 
-  gene_id_type=c("entrez","ensembl"),
-  SYMBOL=NULL) 
+    foreground_ids,
+    background_ids,
+    gmt_file,
+    species=c("mm","hs"),
+    gene_id_type=c("entrez","ensembl"),
+    SYMBOL=NULL)
 {
-  ## Get the gene sets
-  gmt <- readGMT(gmt_file)
-  species <- match.arg(species)
-  
-  gene_id_type <- match.arg(gene_id_type)
-  
-  foreground_ids <- getEntrez(foreground_ids, gene_id_type, species)
-  background_ids <- getEntrez(background_ids, gene_id_type, species)
-  
-  if(is.null(SYMBOL))
-  {
-    message("getting symbols")
-    SYMBOL <- getSYMBOL(species) 
-  }
-  
-  ## Run the fisher tests
-  result_table <- runFisherTests(gmt, foreground_ids, background_ids, SYMBOL)
-  
-  return(result_table)
+    ## Get the gene sets
+    gmt <- readGMT(gmt_file)
+    species <- match.arg(species)
+
+    gene_id_type <- match.arg(gene_id_type)
+
+    foreground_ids <- getEntrez(foreground_ids, gene_id_type, species)
+    background_ids <- getEntrez(background_ids, gene_id_type, species)
+
+    if(is.null(SYMBOL))
+    {
+        message("getting symbols")
+        SYMBOL <- getSYMBOL(species)
+    }
+
+    ## Run the fisher tests
+    result_table <- runFisherTests(gmt, foreground_ids, background_ids, SYMBOL)
+
+    return(result_table)
 }
 
 
@@ -134,60 +136,60 @@ runGMT <- function(
 #' @param gene_id_type Either "entrez" (default) or "ensembl".
 #' @param p_col The column containing the p-values to use
 #' @param p_threshold The significance threshold.
-#' 
+#'
 #' @export
 runGMT.all <- function(results=NULL,
-                        species=c("mm","hs"),
-                        background_ids=NULL, 
-                        sample_col="cluster",
-                        gene_id_col="gene_id",
-                        gene_id_type=c("entrez","ensembl"),
-                        gmt_file=NULL,
-                        p_col="p_val_adj",
-                        p_threshold=0.1)
+                       species=c("mm","hs"),
+                       background_ids=NULL,
+                       sample_col="cluster",
+                       gene_id_col="gene_id",
+                       gene_id_type=c("entrez","ensembl"),
+                       gmt_file=NULL,
+                       p_col="p_val_adj",
+                       p_threshold=0.1)
 {
-  begin <- TRUE
-  
-  species <- match.arg(species)
-  gene_id_type <- match.arg(gene_id_type)
-  
-  if(is.null(gmt_file)) {
-     stop("GMT file must be specified")
-  }
-  
-  SYMBOL <- getSYMBOL(species)
-  
-  for(sample in unique(results[[sample_col]]))
-  {
-    message("working on sample:", sample)
-    data <- results[results[[sample_col]]==sample,]
+    begin <- TRUE
 
-    if(is.null(background_ids))
+    species <- match.arg(species)
+    gene_id_type <- match.arg(gene_id_type)
+
+    if(is.null(gmt_file)) {
+        stop("GMT file must be specified")
+    }
+
+    SYMBOL <- getSYMBOL(species)
+
+    for(sample in unique(results[[sample_col]]))
     {
-      background <- data[[gene_id_col]]
-    } else {
-      background <- background_ids
-    }
-    
-    foreground <- data[[gene_id_col]][data[[p_col]] <= p_threshold]
+        message("working on sample:", sample)
+        data <- results[results[[sample_col]]==sample,]
 
-    tmp <- runGMT(foreground_ids = foreground,
-                   background_ids = background,
-                   gmt_file=gmt_file,
-                   gene_id_type=gene_id_type,
-                   SYMBOL=SYMBOL,
-                   species = species)
-    
-    tmp[[sample_col]] <- sample 
-    
-    if(begin) { 
-      res <- tmp
-      begin <- FALSE
-    } else {
-      res <- rbind(res,tmp)
+        if(is.null(background_ids))
+        {
+            background <- data[[gene_id_col]]
+        } else {
+            background <- background_ids
+        }
+
+        foreground <- data[[gene_id_col]][data[[p_col]] <= p_threshold]
+
+        tmp <- runGMT(foreground_ids = foreground,
+                      background_ids = background,
+                      gmt_file=gmt_file,
+                      gene_id_type=gene_id_type,
+                      SYMBOL=SYMBOL,
+                      species = species)
+
+        tmp[[sample_col]] <- sample
+
+        if(begin) {
+            res <- tmp
+            begin <- FALSE
+        } else {
+            res <- rbind(res,tmp)
+        }
     }
-  }
-  res
+    res
 }
 
 
