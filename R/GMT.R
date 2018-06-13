@@ -156,25 +156,6 @@ runGMT.all <- function(results=NULL,
     if(is.null(gmt_file)) {
         stop("GMT file must be specified")
     }
-<<<<<<< HEAD
-
-    foreground <- data[[gene_id_col]][data[[p_col]] <= p_threshold]
-
-    tmp <- runGMT(foreground_ids = foreground,
-                   background_ids = background,
-                   gmt_file=gmt_file,
-                   gene_id_type=gene_id_type,
-                   species = species,
-                   SYMBOL)
-
-    tmp[[sample_col]] <- sample
-
-    if(begin) {
-      res <- tmp
-      begin <- FALSE
-    } else {
-      res <- rbind(res,tmp)
-=======
 
     SYMBOL <- getSYMBOL(species)
 
@@ -196,8 +177,8 @@ runGMT.all <- function(results=NULL,
                       background_ids = background,
                       gmt_file=gmt_file,
                       gene_id_type=gene_id_type,
-                      SYMBOL=SYMBOL,
-                      species = species)
+                      species = species,
+                      SYMBOL)
 
         tmp[[sample_col]] <- sample
 
@@ -207,7 +188,6 @@ runGMT.all <- function(results=NULL,
         } else {
             res <- rbind(res,tmp)
         }
->>>>>>> 814eaacca852aae6085fd52ad62c085f0ddf1563
     }
     res
 }
