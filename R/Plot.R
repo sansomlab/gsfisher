@@ -28,9 +28,17 @@
 #'
 #' @author Steve Sansom
 sampleEnrichmentHeatmap <- function(
-    results_table, max_rows=50, min_genes=2, adjust_pvalues=FALSE,
-    padjust_method="BH", pvalue_threshold=0.1, maxl=45, show_common=TRUE,
-    sample_id_col="cluster", title="Enriched gene sets"
+                                    results_table,
+                                    max_rows=50,
+                                    min_genes=2,
+                                    p_col="p.val",
+                                    adjust_pvalues=FALSE,
+                                    padjust_method="BH",
+                                    pvalue_threshold=0.1,
+                                    maxl=45,
+                                    show_common=TRUE,
+                                    sample_id_col="cluster",
+                                    title="Enriched gene sets"
 ){
     total_n_sample <- length(unique(results_table[[sample_id_col]]))
 
@@ -40,12 +48,14 @@ sampleEnrichmentHeatmap <- function(
 
     if (adjust_pvalues) {
         ## compute FDR accross all samples
-        results_table$p.adj <- p.adjust(results_table$p.val, method=padjust_method)
+        message("filtering on adjusted p values")
+        results_table$p.adj <- p.adjust(results_table[[p_col]], method=padjust_method)
         results_table <- results_table[
             results_table$p.adj < pvalue_threshold & !is.na(results_table$p.adj), ]
     } else {
+        message("filtering on unadjusted p values")
         results_table <- results_table[
-            results_table$p.val < pvalue_threshold & !is.na(results_table$p.val), ]
+            results_table[[p_col]] < pvalue_threshold & !is.na(results_table[[p_col]]), ]
     }
 
     if (!show_common) {
@@ -53,14 +63,16 @@ sampleEnrichmentHeatmap <- function(
     }
 
     ## Check for gene sets after filtering
-    if (nrow(results_table) == 0) { stop("No gene set passed filters") }
+    if (nrow(results_table) == 0) {
+        stop("No gene set passed filters")
+    }
 
     ## Compute the number of sample in which the gene set is enriched
     id_tab <- table(results_table$geneset_id)
     results_table$n_sample <- id_tab[results_table$geneset_id]
 
     ## Sort by p value
-    results_table <- results_table[order(results_table[[sample_id_col]],results_table$p.val),]
+    results_table <- results_table[order(results_table[[sample_id_col]],results_table[[p_col]]),]
 
     # set the maximum number of output rows
     ntake <- round(max_rows / total_n_sample)
@@ -148,6 +160,16 @@ sampleEnrichmentHeatmap <- function(
     mcols <- mcols[order(mcols)]
     m <- m[, mcols]
 
+    if(adjust_pvalues)
+    {
+        ylab = paste0("over-represented\ngenesets (",
+                      padjust_method," adjusted p < ",
+                      pvalue_threshold, ")")
+    } else {
+        ylab = paste0("over-represented\ngenesets (",
+                      "p < ",pvalue_threshold, ")")
+    }
+
     op <- par() # backup current session settings
     par(cex.main=0.7)
     hm <- heatmap.2(
@@ -166,6 +188,7 @@ sampleEnrichmentHeatmap <- function(
         key.xlab = "row-scaled\nodds-ratio",
         key.ylab = "",
         main=title,
+        ylab=ylab,
         xlab=sample_id_col,
         cexRow = 0.85,
         cexCol = 1.3
