@@ -4,8 +4,8 @@
 \alias{runKEGG}
 \title{Run gene set enrichement on KEGG pathways}
 \usage{
-runKEGG(foreground_ids, background_ids, keggData = NULL, SYMBOL = NULL,
-  gene_id_type = c("entrez", "ensembl"), species = c("hs", "mm"))
+runKEGG(foreground_ids, background_ids, gene_id_type = c("entrez", "ensembl"),
+  species = c("hs", "mm"), keggData = NULL, ...)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
@@ -14,11 +14,11 @@ runKEGG(foreground_ids, background_ids, keggData = NULL, SYMBOL = NULL,
 \item{background_ids}{A list of background ENTREZ ids.
 against which enrichment will be tested (i.e., the gene universe).}
 
-\item{keggData}{A list of KEGG gene sets.}
-
 \item{gene_id_type}{Either "entrez" (default) or "ensembl".}
 
 \item{species}{Species identifier (only "hs" or "mm" are supported).}
+
+\item{keggData}{Object retrieved with fetchKEGG(). Obtained automatically if not specified.}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement of KEGG Pathways.

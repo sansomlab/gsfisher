@@ -4,8 +4,8 @@
 \alias{runGMT}
 \title{Run gene set enrichement on custom gene sets}
 \usage{
-runGMT(foreground_ids, background_ids, gmt_file, species = c("mm", "hs"),
-  gene_id_type = c("entrez", "ensembl"), SYMBOL = NULL)
+runGMT(foreground_ids, background_ids, gene_id_type = c("entrez", "ensembl"),
+  species = c("mm", "hs"), gmt_file, ...)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
@@ -14,9 +14,11 @@ runGMT(foreground_ids, background_ids, gmt_file, species = c("mm", "hs"),
 \item{background_ids}{A list of background ENTREZ ids.
 against which enrichment will be tested (i.e., the gene universe).}
 
-\item{gmt_file}{path to a GMT file.}
-
 \item{gene_id_type}{Either "entrez" (default) or "ensembl".}
+
+\item{species}{Species identifier (only "hs" or "mm" are supported).}
+
+\item{gmt_file}{path to a GMT file.}
 }
 \description{
 A wrapper function to run Fisher tests for enrichement from GMT files.

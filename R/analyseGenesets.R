@@ -62,9 +62,8 @@ analyseGenesets <- function(
   go_result <- runGO(foreground_ids, 
                      background_ids,
                      gene_id_type=gene_id_type,
-                     genesets=NULL, 
-                     SYMBOL=SYMBOL, 
-                     species=species)
+                     species=species,
+                     SYMBOL)
   
   message(paste0( "- nrow GO: ", nrow(go_result) ))
   
@@ -82,8 +81,8 @@ analyseGenesets <- function(
     background_ids,
     gene_id_type=gene_id_type,
     keggData=kegg_pathways, 
-    SYMBOL=SYMBOL, 
-    species=species)
+    species=species,
+    SYMBOL)
   
   message(paste0( "- nrow KEGG:", nrow(results[["KEGG"]]) ))
   
@@ -98,7 +97,7 @@ analyseGenesets <- function(
       gene_id_type=gene_id_type,
       gmt_file=gmt_files[[geneset_name]],
       species=species,
-      SYMBOL=SYMBOL)
+      SYMBOL)
     
     message(paste0( "- nrow ", geneset_name, ": ", nrow(results[[geneset_name]]) ))
   }

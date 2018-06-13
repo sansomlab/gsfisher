@@ -8,11 +8,9 @@
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param annotations A data.frame with at least columns "entrez_id" and "gene_name"
 #' (see \code{fetchAnnotation}).
-#' @param species Species identifier (only "hs" or "mm" are supported).
 #' @param gene_id_type Either "entrez" (default") or "ensembl".
-#'
+#' @param species Species identifier (only "hs" or "mm" are supported).
 #' @export
 #'
 #' @seealso
@@ -29,10 +27,9 @@
 runGO <- function(
   foreground_ids,
   background_ids,
-  genesets=NULL,
-  SYMBOL=NULL,
   gene_id_type=c("entrez","ensembl"),
-  species=c("hs","mm")
+  species=c("hs","mm"),
+  ...
 ){
   require(GO.db)
   species <- match.arg(species)
@@ -43,13 +40,13 @@ runGO <- function(
   background_ids <- getEntrez(background_ids, gene_id_type, species)
 
   ## Get the gene sets
-  if(is.null(genesets))
+  if(!hasArg(genesets))
   {
     message("getting genesets")
     genesets <- getGO(species)
   }
 
-  if(is.null(SYMBOL))
+  if(!hasArg(SYMBOL))
   {
     message("getting symbols")
     SYMBOL <- getSYMBOL(species)
@@ -131,10 +128,10 @@ runGO.all <- function(results=NULL,
 
     tmp <- runGO(foreground_ids = foreground,
                  background_ids = background,
-                 genesets=genesets,
-                 SYMBOL=SYMBOL,
                  gene_id_type = gene_id_type,
-                 species = species)
+                 species = species,
+                 genesets,
+                 SYMBOL)
 
     tmp[[sample_col]] <- sample
 

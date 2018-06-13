@@ -6,9 +6,9 @@
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param keggData A list of KEGG gene sets.
-#' @param species Species identifier (only "hs" or "mm" are supported).
 #' @param gene_id_type Either "entrez" (default) or "ensembl".
+#' @param species Species identifier (only "hs" or "mm" are supported).
+#' @param keggData  Object retrieved with fetchKEGG(). Obtained automatically if not specified. 
 #'
 #' @export
 #'
@@ -32,10 +32,10 @@
 runKEGG <- function(
   foreground_ids, 
   background_ids, 
-  keggData = NULL, 
-  SYMBOL=NULL,
   gene_id_type=c("entrez","ensembl"),
-  species=c("hs", "mm")
+  species=c("hs", "mm"),
+  keggData = NULL, 
+  ...
 ){
   species <- match.arg(species)
   
@@ -50,7 +50,7 @@ runKEGG <- function(
     keggData <- fetchKEGG(species=species) 
   }
   
-  if(is.null(SYMBOL))
+  if(!hasArg(SYMBOL))
   {
     message("getting symbols")
     SYMBOL <- getSYMBOL(species) 
@@ -119,9 +119,9 @@ runKEGG.all <- function(results=NULL,
     tmp <- runKEGG(foreground_ids = foreground,
                  background_ids = background,
                  keggData=keggData,
-                 SYMBOL=SYMBOL,
                  gene_id_type = gene_id_type,
-                 species = species)
+                 species = species,
+                 SYMBOL)
     
     tmp[[sample_col]] <- sample 
     

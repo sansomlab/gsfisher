@@ -72,9 +72,9 @@ writeGMT <- function(geneset, outfile) {
 #' (e.g. significantly differentially expressed genes).
 #' @param background_ids A list of background ENTREZ ids.
 #' against which enrichment will be tested (i.e., the gene universe).
-#' @param gmt_file path to a GMT file.
 #' @param gene_id_type Either "entrez" (default) or "ensembl".
-#'
+#' @param species Species identifier (only "hs" or "mm" are supported).
+#' @param gmt_file path to a GMT file.
 #'
 #' @export
 #'
@@ -97,10 +97,10 @@ writeGMT <- function(geneset, outfile) {
 runGMT <- function(
   foreground_ids, 
   background_ids, 
-  gmt_file, 
-  species=c("mm","hs"), 
   gene_id_type=c("entrez","ensembl"),
-  SYMBOL=NULL) 
+  species=c("mm","hs"), 
+  gmt_file, 
+  ...) 
 {
   ## Get the gene sets
   gmt <- readGMT(gmt_file)
@@ -111,7 +111,7 @@ runGMT <- function(
   foreground_ids <- getEntrez(foreground_ids, gene_id_type, species)
   background_ids <- getEntrez(background_ids, gene_id_type, species)
   
-  if(is.null(SYMBOL))
+  if(!hasArg(SYMBOL))
   {
     message("getting symbols")
     SYMBOL <- getSYMBOL(species) 
@@ -175,8 +175,8 @@ runGMT.all <- function(results=NULL,
                    background_ids = background,
                    gmt_file=gmt_file,
                    gene_id_type=gene_id_type,
-                   SYMBOL=SYMBOL,
-                   species = species)
+                   species = species,
+                   SYMBOL)
     
     tmp[[sample_col]] <- sample 
     
