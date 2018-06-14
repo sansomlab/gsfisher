@@ -5,9 +5,10 @@
 \title{Draw a heatmap of enriched genesets in all samples}
 \usage{
 sampleEnrichmentHeatmap(results_table, max_rows = 50, min_genes = 2,
-  p_col = "p.val", adjust_pvalues = FALSE, padjust_method = "BH",
-  pvalue_threshold = 0.1, maxl = 45, show_common = TRUE,
-  sample_id_col = "cluster", title = "Enriched gene sets")
+  min_odds_ratio = 1.5, p_col = "p.val", adjust_pvalues = FALSE,
+  padjust_method = "BH", pvalue_threshold = 0.1, maxl = 45,
+  show_common = TRUE, sample_id_col = "cluster", sample_ids = NULL,
+  title = "Enriched gene sets")
 }
 \arguments{
 \item{results_table}{A \emph{gofisher} multi-sample results table.}
@@ -15,6 +16,8 @@ sampleEnrichmentHeatmap(results_table, max_rows = 50, min_genes = 2,
 \item{max_rows}{Maximum number of rows to show in the heatmap.}
 
 \item{min_genes}{Minimum number of genes to filter gene sets.}
+
+\item{min_odds_ratio}{Only genesets with odds ratios equal to or greater will be considered.}
 
 \item{adjust_pvalues}{Logical value indicating whether to adjust p-values
 across all sample.}
@@ -30,6 +33,8 @@ across all sample.}
 enriched in all samples.}
 
 \item{sample_id_col}{The column of the results_table containing the sample id}
+
+\item{sample_ids}{A vector of sample identifiers to report. Can be used to subset the frame, or to add missing columns.}
 
 \item{title}{Title of the heat map plot.}
 }
