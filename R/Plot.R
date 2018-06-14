@@ -19,6 +19,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats p.adjust
 #' @importFrom graphics par
+#' @importFrom RColorBrewer brewer.pal
 #'
 #' @export
 #'
@@ -39,8 +40,13 @@ sampleEnrichmentHeatmap <- function(
                                     show_common=TRUE,
                                     sample_id_col="cluster",
                                     title="Enriched gene sets"
-){
-    total_n_sample <- length(unique(results_table[[sample_id_col]]))
+                                    )
+{
+  
+  results_table[[sample_id_col]] <- as.character(results_table[[sample_id_col]])
+  
+    sample_names <- unique(results_table[[sample_id_col]])
+    total_n_sample <- length(sample_names)
 
     ## Filter the gene sets
     results_table <- results_table[
@@ -67,7 +73,7 @@ sampleEnrichmentHeatmap <- function(
         stop("No gene set passed filters")
     }
 
-    ## Compute the number of sample in which the gene set is enriched
+    ## Compute the number of samples in which each gene set is enriched
     id_tab <- table(results_table$geneset_id)
     results_table$n_sample <- id_tab[results_table$geneset_id]
 
@@ -80,12 +86,12 @@ sampleEnrichmentHeatmap <- function(
     # Identify the genesets to show in the heatmap
     hmap_genesets <- c()
 
-    for ( sample in unique(as.character( results_table[[sample_id_col]] ))) {
+    for ( sample in unique(results_table[[sample_id_col]])) {
 
         temp <- results_table[results_table[[sample_id_col]] == sample, ]
         nrows <- nrow(temp)
         if (nrows==0) {
-            print(paste0("no enriched genesets found for sample: ", sample))
+            print(paste0("no enriched genesets found for", sample_id_col, " : ", sample))
             next
         }
 
@@ -100,6 +106,8 @@ sampleEnrichmentHeatmap <- function(
 
     take <- c("geneset_id", "description", "odds.ratio", sample_id_col)
     temp <- results_table[results_table$geneset_id %in% unique(hmap_genesets), take]
+
+    # process the term description
     xx <- temp$description
     xx[is.na(xx)] <- "n/a"
     xx[nchar(xx)>maxl] <- paste0(strtrim(xx[nchar(xx)>maxl], maxl), "'")
@@ -108,29 +116,29 @@ sampleEnrichmentHeatmap <- function(
     lu$description <- make.unique(lu$description)
     rownames(lu) <- lu$geneset_id
 
+    # unmelt the data
     dd <- dcast(temp, geneset_id ~ get(sample_id_col), value.var="odds.ratio")
     rownames(dd) <- lu[dd$geneset_id, "description"]
     dd$geneset_id <- NULL
 
-    ## deal with missing sample
-    for (sample in as.character(unique( temp[[sample_id_col]] ))) {
+    ## deal with missing samples
+    for (sample in sample_names) {
         if (!sample %in% colnames(dd)) {
             message("adding column: ", sample)
-            dd[[sample]] <- 0
+            cnames <- colnames(dd)
+            
+            dd[[sample]] <- NA
         }
     }
-
-    ## convert to matrix and deal with missing values
+    
+    ## convert to matrix and deal with infinite values
     dd <- as.matrix(dd)
-    dd[is.na(dd)] <- 0
-    dd[is.infinite(dd)] <- max( dd[!is.infinite(dd)] )
+    # dd[is.na(dd)] <- 0
+    dd[is.infinite(dd)] <- 256
 
     m <- dd
 
-    scale <- "row"
-
     ## heatmap.2 requires a matrix with a least 2 rows and 2 columns.
-
     if (nrow(m) == 1 ) {
         warning(
             "Matrix only has one row. ",
@@ -138,6 +146,7 @@ sampleEnrichmentHeatmap <- function(
         m <- rbind(m, m)
     }
 
+    ## this should almost never happen.
     if (ncol(m) == 1) {
         warning(
             "Matrix only has one column. ",
@@ -145,20 +154,37 @@ sampleEnrichmentHeatmap <- function(
         m <- cbind(m,m)
         scale="none"
     }
+  
+    ## enforce column order
+    cnames <- colnames(m)
+    typed_names <- type.convert(cnames, as.is=T)
+    cnames <- cnames[order(typed_names)]
+    m <- m[, cnames]
+    
+    ## compute the row dendrogram
+    mtmp <- m
+    mtmp[is.na(mtmp)] <- 0
 
-    ramp_colors <- c("blue", "darkblue", "black", "yellow", "red")
+    mdist <- dist(mtmp)
+    mclust <- hclust(mdist)
+    mrowDen <- as.dendrogram(mclust)
+
+    # log2 transform the odds ratios
+    mtrans <- log2(mtmp+1)
+
+    # return the NA values to the matrix
+    mtrans[is.na(m)] <- NA
 
     nbreaks <- 50 # number of graduations
     rm <- range(m)
-    rm <- c(-2.5, 2.5)
+
+    # specify the color range as 
+    # minimum = minimum non-NA value
+    # maximum = equivalent to an odds ratio of 256.
+    rm <- c(min(mtrans[!is.na(mtrans)]), 8)
     breaks=seq(rm[1], rm[2], diff(rm) / nbreaks)
-
-    colors <- colorRampPalette(ramp_colors)(nbreaks)
-
-    ## enforce column order
-    mcols <- colnames(m)
-    mcols <- mcols[order(mcols)]
-    m <- m[, mcols]
+    
+    colors <- colorRampPalette(brewer.pal(50, "YlOrRd"))
 
     if(adjust_pvalues)
     {
@@ -173,25 +199,32 @@ sampleEnrichmentHeatmap <- function(
     op <- par() # backup current session settings
     par(cex.main=0.7)
     hm <- heatmap.2(
-        m,
+        mtrans,
         col=colors,
         breaks=breaks,
-        scale=scale,
+        scale="none",
+        Rowv=mrowDen,
         Colv=F,
-        margins=c(4, 30),
+        margins=c(4, 28),
         trace="none",
         key.title = "",
-        key.par=list(mar=c(4.4, 0.3, 4.4, 0.3)),
+        #keysize =0.4,
+        colsep=c(0:(ncol(mtrans)+1)),
+        rowsep=c(0:(nrow(mtrans)+1)),
+        sepcolor="grey",
+        sepwidth=c(0.01,0.01),
+        key.par=list(mar=c(3.7, 0.3,0.6, 0.3)),
         density.info=c("none"),
         lwid = c(1, 8),
-        lhei = c(1, 4),
-        key.xlab = "row-scaled\nodds-ratio",
+        lhei = c(1, 6),
+        key.xlab = "odds-ratio\nlog2(n+1)",
         key.ylab = "",
         main=title,
         ylab=ylab,
         xlab=sample_id_col,
         cexRow = 0.85,
-        cexCol = 1.3
+        cexCol = 1.3,
+        na.color="lightgrey"
     )
     par(op) # restore original session settings
     return(hm)
