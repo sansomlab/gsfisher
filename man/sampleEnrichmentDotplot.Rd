@@ -6,7 +6,10 @@
 \usage{
 sampleEnrichmentDotplot(results_table, p_col = "p.adj",
   pvalue_threshold = 0.05, selected_genesets = c(),
-  sample_id_col = "cluster")
+  sample_id_col = "cluster", fill_var = "odds.ratio",
+  fill_trans = "log2", fill_colors = c("yellow", "red", "brown"),
+  fill_max_quantile = 1, non_significant_color = "grey90",
+  min_dot_size = 2, max_dot_size = 8)
 }
 \arguments{
 \item{results_table}{The results table}
@@ -18,6 +21,18 @@ sampleEnrichmentDotplot(results_table, p_col = "p.adj",
 \item{selected_genesets}{A vector of geneset descriptions to slow in the plot}
 
 \item{sample_id_col}{The column of the results_table containing the sample id}
+
+\item{fill_var}{The column to use for the fill color.}
+
+\item{fill_trans}{Name of the transformation for the fill. "-log10" is supported for p-values.}
+
+\item{fill_colors}{Colors for the fill gradient}
+
+\item{fill_max_quantile}{The quantile at which (non-infinite) fill variable will be capped for the color scale.}
+
+\item{min_dot_size}{Minimum dot size (points)}
+
+\item{max_dot_size}{Maximum dot size (points)}
 }
 \description{
 Make a dot-plot of geneset enrichments across multiple samples/clusters

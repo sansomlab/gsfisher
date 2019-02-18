@@ -353,12 +353,29 @@ visualiseClusteredGenesets <- function(results_table,
   gp
 }
 
+
+
+#' Make a -log10 transform for ggplot.
+#' @import scales
+minus_log10_trans <- function() trans_new(name="minus_log10", 
+                                          function(x) -log10(x), 
+                                          function(x) 10^-x,
+                                          log_breaks(10),
+                                          domain = c(1e-100,Inf))
+
+
 #' Make a dot-plot of geneset enrichments across multiple samples/clusters
 #' @param results_table The results table
 #' @param selected_genesets A vector of geneset descriptions to slow in the plot
 #' @param p_col The name of the column with the (e.g. adjusted) p-values
 #' @param pvalue_threshold The pvalue_threshold to be applied
 #' @param sample_id_col The column of the results_table containing the sample id
+#' @param fill_var The column to use for the fill color.
+#' @param fill_trans Name of the transformation for the fill. "-log10" is supported for p-values.
+#' @param fill_max_quantile The quantile at which (non-infinite) fill variable will be capped for the color scale.
+#' @param fill_colors Colors for the fill gradient
+#' @param min_dot_size Minimum dot size (points)
+#' @param max_dot_size Maximum dot size (points)
 #' @import ggplot2
 #' 
 #' @export
@@ -367,25 +384,49 @@ sampleEnrichmentDotplot <- function(results_table,
                                     p_col="p.adj",
                                     pvalue_threshold=0.05,
                                     selected_genesets = c(),
-                                    sample_id_col = "cluster"
-                                    
-)
+                                    sample_id_col = "cluster",
+                                    fill_var = "odds.ratio",
+                                    fill_trans = "log2",
+                                    fill_colors = c("yellow","red","brown"),
+                                    fill_max_quantile = 1,
+                                    non_significant_color = "grey90",
+                                    min_dot_size = 2,
+                                    max_dot_size = 8)
 {
   
   xx <- results_table[results_table$description %in% selected_genesets,]
   xx$sample_id <- as.factor(xx[[sample_id_col]]) 
   xx$description <- factor(xx$description, levels=rev(selected_genesets))
   
+  # set the maximum odds ratio to the 90th quantile of the non-infinite data.
+  xx$fill.var <- xx[[fill_var]]
+  xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
+  
+
   significant_enrichments <- xx[xx[[p_col]] < pvalue_threshold ,]
   insignificant_enrichments <- xx[xx[[p_col]] > pvalue_threshold,]
   
+  if(fill_trans=="-log10")
+  {
+    fill_trans="minus_log10"
+  }
+  
   ## Draw the plot.
   gp <- ggplot(significant_enrichments, aes(sample_id, description))
-  gp <- gp + geom_point(aes(size=n_fg, color=odds.ratio))
-  gp <- gp + geom_point(data=insignificant_enrichments, aes(size=n_fg), color="grey90")
-  gp <- gp + scale_color_gradient2(low="yellow", mid="red",high="black", 
-                                   trans="log2", midpoint = 4)
-  gp <- gp + scale_size_continuous(range = c(3,10),
+  gp <- gp + geom_point(aes(size=n_fg, color=fill.var))
+  gp <- gp + geom_point(data=insignificant_enrichments, aes(size=n_fg), color=non_significant_color)
+
+  if(!is.null(fill_trans))
+  {
+    gp <- gp + scale_color_gradientn(colors=fill_colors, 
+                                   trans=fill_trans, 
+                                   name=fill_var)
+  } else {
+    gp <- gp + scale_color_gradient2(colors=fill_colors, 
+                                    name=fill_var)
+  }
+  
+  gp <- gp + scale_size_continuous(range = c(min_dot_size,max_dot_size),
                                    trans="log2")
   gp <- gp + xlab("Cluster") + ylab("GO Biological Process")
   gp <- gp + theme_bw() 
