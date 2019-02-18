@@ -5,7 +5,8 @@
 \title{Make a dot-plot of geneset enrichments across multiple samples/clusters}
 \usage{
 sampleEnrichmentDotplot(results_table, p_col = "p.adj",
-  pvalue_threshold = 0.05, selected_genesets = c())
+  pvalue_threshold = 0.05, selected_genesets = c(),
+  sample_id_col = "cluster")
 }
 \arguments{
 \item{results_table}{The results table}
@@ -15,6 +16,8 @@ sampleEnrichmentDotplot(results_table, p_col = "p.adj",
 \item{pvalue_threshold}{The pvalue_threshold to be applied}
 
 \item{selected_genesets}{A vector of geneset descriptions to slow in the plot}
+
+\item{sample_id_col}{The column of the results_table containing the sample id}
 }
 \description{
 Make a dot-plot of geneset enrichments across multiple samples/clusters
