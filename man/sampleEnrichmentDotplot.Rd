@@ -6,10 +6,11 @@
 \usage{
 sampleEnrichmentDotplot(results_table, p_col = "p.adj",
   pvalue_threshold = 0.05, selected_genesets = c(),
-  sample_id_col = "cluster", fill_var = "odds.ratio",
-  fill_trans = "log2", fill_colors = c("yellow", "red", "brown"),
-  fill_max_quantile = 1, non_significant_color = "grey90",
-  min_dot_size = 2, max_dot_size = 8)
+  selection_col = "description", sample_id_col = "cluster",
+  sample_levels = NULL, fill_var = "odds.ratio", fill_trans = "log2",
+  fill_colors = c("yellow", "red", "brown"), fill_max_quantile = 1,
+  non_significant_color = "grey90", min_dot_size = 2,
+  max_dot_size = 8, maxl = Inf, title = NULL)
 }
 \arguments{
 \item{results_table}{The results table}
@@ -18,7 +19,9 @@ sampleEnrichmentDotplot(results_table, p_col = "p.adj",
 
 \item{pvalue_threshold}{The pvalue_threshold to be applied}
 
-\item{selected_genesets}{A vector of geneset descriptions to slow in the plot}
+\item{selected_genesets}{A vector of geneset slow in the plot}
+
+\item{selection_col}{The column against which the geneset selections will be matched}
 
 \item{sample_id_col}{The column of the results_table containing the sample id}
 
@@ -33,6 +36,8 @@ sampleEnrichmentDotplot(results_table, p_col = "p.adj",
 \item{min_dot_size}{Minimum dot size (points)}
 
 \item{max_dot_size}{Maximum dot size (points)}
+
+\item{maxl}{The maximum lenght for the geneset labels}
 }
 \description{
 Make a dot-plot of geneset enrichments across multiple samples/clusters

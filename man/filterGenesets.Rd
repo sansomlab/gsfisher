@@ -6,7 +6,7 @@
 \usage{
 filterGenesets(results_table, min_foreground_genes = 3,
   max_genes_geneset = 500, min_odds_ratio = 2, p_col = "p.val",
-  adjust_pvalues = FALSE, padjust_method = "BH",
+  padjust_method = "BH", use_adjusted_pvalues = TRUE,
   pvalue_threshold = 0.05)
 }
 \arguments{
@@ -18,13 +18,13 @@ filterGenesets(results_table, min_foreground_genes = 3,
 
 \item{min_odds_ratio}{Only genesets with odds ratios equal to or greater will be considered.}
 
-\item{adjust_pvalues}{Logical value indicating whether to adjust p-values
-across all sample.}
-
 \item{padjust_method}{Correction method. Can be abbreviated
 (see \code{\link{p.adjust.methods}}).}
 
 \item{pvalue_threshold}{P-value threshold.}
+
+\item{adjust_pvalues}{Logical value indicating whether to adjust p-values
+across all sample.}
 }
 \description{
 Filter a genesets results table

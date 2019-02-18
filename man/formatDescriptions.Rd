@@ -4,7 +4,7 @@
 \alias{formatDescriptions}
 \title{Utility function to clean up desriptions for plots}
 \usage{
-formatDescriptions(xx, remove = c(), maxl = 45)
+formatDescriptions(xx, id, remove = c(), maxl = 45)
 }
 \arguments{
 \item{remove}{Vector of string patterns to delete}

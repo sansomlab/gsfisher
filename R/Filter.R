@@ -23,40 +23,62 @@ filterGenesets <- function(results_table,
                            max_genes_geneset=500,
                            min_odds_ratio=2,
                            p_col="p.val",
-                           adjust_pvalues=FALSE,
                            padjust_method="BH",
+                           use_adjusted_pvalues=TRUE,
                            pvalue_threshold=0.05
 )
 {
+  
+  ## Independently filter on geneset size before p-value correction.
+  message("number of rows in table:", nrow(results_table))
+  
+  ## Filter based on number of genes in the foreground
+  message("filtering for genesets with n_fg >=", min_foreground_genes)
+  
+  results_table <- results_table[
+    results_table$n_fg >= min_foreground_genes & !is.na(results_table$n_fg),]
+  
+  message("number of rows retained:", nrow(results_table))
+  
+  ## Filter based on number of genes in the geneset
+  message("filtering for genesets with <=", max_genes_geneset)
+  
+  results_table <- results_table[
+  results_table$n_set <= max_genes_geneset,]
+  
+  message("number of rows retained:", nrow(results_table))
+  
+  
+  ## compute FDR accross all samples
+  results_table$p.adj <- p.adjust(results_table[[p_col]], method=padjust_method)
+  
   ## (Adjust) and filter on p-values before other filters are applied
-  if (adjust_pvalues) {
-    ## compute FDR accross all samples
-    results_table$p.adj <- p.adjust(results_table[[p_col]], method=padjust_method)
-    
-    message("filtering on adjusted p values")
+  if (use_adjusted_pvalues) {
+    message("filtering for adjusted p values < ", pvalue_threshold)
     results_table <- results_table[
       results_table$p.adj < pvalue_threshold & !is.na(results_table$p.adj), ]
   } else {
-    message("filtering on unadjusted p values")
+    message("filtering for unadjusted p values <", pvalue_threshold)
     results_table <- results_table[
       results_table[[p_col]] < pvalue_threshold & !is.na(results_table[[p_col]]), ]
   }
   
-  ## Filter based on number of genes in the foreground
-  results_table <- results_table[
-    results_table$n_fg >= min_foreground_genes & !is.na(results_table$n_fg),]
-  
-  ## Filter based on number of genes in the geneset
-  results_table <- results_table[
-    results_table$n_set <= max_genes_geneset,]
+  message("number of rows retained:", nrow(results_table))
   
   ## Filter based on odds ratio
+  message("filtering for odds ratios >= ", min_odds_ratio)
+  
   results_table <- results_table[
     results_table$odds.ratio >= min_odds_ratio & !is.na(results_table$odds.ratio),]
   
+  print(dim(results_table))
   ## Check for gene sets after filtering
   if (nrow(results_table) == 0) {
-    stop("No gene set passed filters")
+    warning("No gene set passed filters")
+  } else {
+    
+  message("final number of rows retained:", nrow(results_table))
+    
   }
   
   results_table

@@ -5,7 +5,7 @@
 #' @param maxl  Max length of the descriptions
 #' 
 #' @export
-formatDescriptions <- function(xx,
+formatDescriptions <- function(xx, id,
                                remove=c(),
                                maxl=45)
 {
@@ -19,9 +19,54 @@ formatDescriptions <- function(xx,
   xx <- sapply(xx, function(x) if(x == toupper(x)) { tolower(x) } else { x }) 
   
   xx[is.na(xx)] <- "n/a"
-  xx[nchar(xx)>maxl] <- paste0(strtrim(xx[nchar(xx)>maxl], maxl), "'")
+  xx[nchar(xx)>maxl] <- paste0(strtrim(xx[nchar(xx)>maxl], maxl), 
+                               " ",
+                               id[nchar(xx)>maxl])
   xx
 }
+
+#' Get a list of top-genesets by cluster
+#' @param sort_by The column by which to sort the genesets
+#' 
+#' @export
+getSampleGenesets <- function(results_table,
+                              sort_by = c("p.val", "p.adj","odds.ratio","score"),
+                              sample_id_col = "cluster",
+                              max_rows = 50)
+{
+
+  ## Sort by p value
+  if(sort_by %in% c("p.val", "p.adj"))
+  {
+    results_table <- results_table[order(results_table[[sample_id_col]],results_table[[sort_by]]),]
+  } else {
+    results_table <- results_table[order(results_table[[sample_id_col]],-results_table[[sort_by]]),]
+  }
+    
+  # set the maximum number of output rows
+  ntake <- round(max_rows / length(unique(results_table[[sample_id_col]])))
+
+  # Identify the genesets to show in the heatmap
+  hmap_genesets <- c()
+
+  for ( sample in unique(results_table[[sample_id_col]])) {
+  
+    temp <- results_table[results_table[[sample_id_col]] == sample, ]
+    nrows <- nrow(temp)
+    if (nrows==0) {
+      print(paste0("no enriched genesets found for", sample_id_col, " : ", sample))
+      next
+    }
+  
+  temp <- temp[1:min(nrows,ntake), ]
+  
+  hmap_genesets <- c(hmap_genesets, temp$geneset_id)
+  }
+  
+  hmap_genesets <- unique(hmap_genesets)
+  hmap_genesets
+}
+
 
 #' Draw a heatmap of enriched genesets in all samples
 #'
@@ -91,14 +136,13 @@ sampleEnrichmentHeatmap <- function(
                                   adjust_pvalues = adjust_pvalues,
                                   padjust_method = padjust_method,
                                   pvalue_threshold = pvalue_threshold)
-  
-  
-  total_n_sample <- length(sample_ids)
-  
+
   ## Check for gene sets after filtering
   if (nrow(results_table) == 0) {
     stop("No gene set passed filters")
-  }
+  }  
+  
+  total_n_sample <- length(sample_ids)
   
   ## Compute the number of samples in which each gene set is enriched
   id_tab <- table(results_table$geneset_id)
@@ -142,6 +186,8 @@ sampleEnrichmentHeatmap <- function(
   xx <- temp$description
   xx <- formatDescriptions(xx, c("REACTOME_", "BIOCARTA_"), maxl)
   temp$description <- xx
+  
+  
   
   lu <- unique(temp[,c("geneset_id", "description")])
   lu$description <- make.unique(lu$description)
@@ -357,6 +403,7 @@ visualiseClusteredGenesets <- function(results_table,
 
 #' Make a -log10 transform for ggplot.
 #' @import scales
+#' @export
 minus_log10_trans <- function() trans_new(name="minus_log10", 
                                           function(x) -log10(x), 
                                           function(x) 10^-x,
@@ -366,7 +413,8 @@ minus_log10_trans <- function() trans_new(name="minus_log10",
 
 #' Make a dot-plot of geneset enrichments across multiple samples/clusters
 #' @param results_table The results table
-#' @param selected_genesets A vector of geneset descriptions to slow in the plot
+#' @param selected_genesets A vector of geneset slow in the plot
+#' @param selection_col The column against which the geneset selections will be matched 
 #' @param p_col The name of the column with the (e.g. adjusted) p-values
 #' @param pvalue_threshold The pvalue_threshold to be applied
 #' @param sample_id_col The column of the results_table containing the sample id
@@ -376,6 +424,7 @@ minus_log10_trans <- function() trans_new(name="minus_log10",
 #' @param fill_colors Colors for the fill gradient
 #' @param min_dot_size Minimum dot size (points)
 #' @param max_dot_size Maximum dot size (points)
+#' @param maxl The maximum length for the geneset labels
 #' @import ggplot2
 #' 
 #' @export
@@ -384,38 +433,58 @@ sampleEnrichmentDotplot <- function(results_table,
                                     p_col="p.adj",
                                     pvalue_threshold=0.05,
                                     selected_genesets = c(),
+                                    selection_col = "description",
                                     sample_id_col = "cluster",
+                                    sample_levels = NULL,
                                     fill_var = "odds.ratio",
                                     fill_trans = "log2",
                                     fill_colors = c("yellow","red","brown"),
                                     fill_max_quantile = 1,
                                     non_significant_color = "grey90",
                                     min_dot_size = 2,
-                                    max_dot_size = 8)
+                                    max_dot_size = 8,
+                                    maxl = Inf,
+                                    title = NULL)
 {
   
-  xx <- results_table[results_table$description %in% selected_genesets,]
-  xx$sample_id <- as.factor(xx[[sample_id_col]]) 
-  xx$description <- factor(xx$description, levels=rev(selected_genesets))
+  xx <- results_table[results_table[[selection_col]] %in% selected_genesets,]
+  
+  if(is.null(sample_levels)) {
+    xx$sample_id <- as.factor(xx[[sample_id_col]]) 
+  } else {
+    xx$sample_id <- factor(xx[[sample_id_col]], levels=sample_levels) 
+  }
+  
+  if("description" %in% colnames(xx)) { label_col <- "description" } else { label_col <- "geneset_id" }
+  
+  xx$geneset_label <- formatDescriptions(xx[[label_col]], xx$geneset_id, 
+                                         c("REACTOME_", "BIOCARTA_"), maxl) 
+  
+  select_idx <- match(selected_genesets, xx[[selection_col]])
+  
+  geneset_label_levels <- xx$geneset_label[select_idx]
+  xx$geneset_label <- factor(xx$geneset_label, 
+                           levels=rev(geneset_label_levels))
   
   # set the maximum odds ratio to the 90th quantile of the non-infinite data.
   xx$fill.var <- xx[[fill_var]]
   xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
   
 
-  significant_enrichments <- xx[xx[[p_col]] < pvalue_threshold ,]
-  insignificant_enrichments <- xx[xx[[p_col]] > pvalue_threshold,]
-  
+  significant_enrichments <- xx[xx[[p_col]] < pvalue_threshold & !is.na(xx[[p_col]]),]
+  insignificant_enrichments <- xx[xx[[p_col]] > pvalue_threshold | is.na(xx[[p_col]]),]
+    
   if(fill_trans=="-log10")
   {
     fill_trans="minus_log10"
   }
   
   ## Draw the plot.
-  gp <- ggplot(significant_enrichments, aes(sample_id, description))
-  gp <- gp + geom_point(aes(size=n_fg, color=fill.var))
+  gp <- ggplot(xx, aes(sample_id, geneset_label))
+  
+  gp <- gp + geom_point(data=significant_enrichments, aes(size=n_fg, color=fill.var))
   gp <- gp + geom_point(data=insignificant_enrichments, aes(size=n_fg), color=non_significant_color)
-
+  
   if(!is.null(fill_trans))
   {
     gp <- gp + scale_color_gradientn(colors=fill_colors, 
@@ -428,8 +497,17 @@ sampleEnrichmentDotplot <- function(results_table,
   
   gp <- gp + scale_size_continuous(range = c(min_dot_size,max_dot_size),
                                    trans="log2")
-  gp <- gp + xlab("Cluster") + ylab("GO Biological Process")
+  
+  gp <- gp + scale_x_discrete(drop=FALSE)
+  
+  gp <- gp + xlab("Cluster") 
   gp <- gp + theme_bw() 
+  
+  if(!is.null(title))
+  {
+    gp <- gp + ylab(title) 
+  }
+  
   gp
 }
 
