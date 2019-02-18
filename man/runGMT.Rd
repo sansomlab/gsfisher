@@ -4,8 +4,8 @@
 \alias{runGMT}
 \title{Run gene set enrichement on custom gene sets}
 \usage{
-runGMT(foreground_ids, background_ids, gene_id_type = c("entrez", "ensembl"),
-  species = c("mm", "hs"), gmt_file, ...)
+runGMT(foreground_ids, background_ids, gene_id_type = c("entrez",
+  "ensembl"), species = c("mm", "hs"), gmt_file, ...)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest

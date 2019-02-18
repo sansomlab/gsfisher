@@ -4,8 +4,8 @@
 \alias{runKEGG}
 \title{Run gene set enrichement on KEGG pathways}
 \usage{
-runKEGG(foreground_ids, background_ids, gene_id_type = c("entrez", "ensembl"),
-  species = c("hs", "mm"), keggData = NULL, ...)
+runKEGG(foreground_ids, background_ids, gene_id_type = c("entrez",
+  "ensembl"), species = c("hs", "mm"), keggData = NULL, ...)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest

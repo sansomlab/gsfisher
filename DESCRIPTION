@@ -11,7 +11,7 @@ Description: A package for performing basic simple hypergeometric
     geneset over-enrichment analysis on multiple sets of genes of interest
     (such as clusters from single-cell RNA-seq analysis).
 License: GPL-2
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Imports: biomaRt,
     AnnotationDbi,
     GO.db,

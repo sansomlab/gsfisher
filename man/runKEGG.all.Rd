@@ -5,9 +5,9 @@
 \title{Run KEGG analysis on a multi-sample results table.}
 \usage{
 runKEGG.all(results = NULL, species = c("mm", "hs"),
-  background_ids = NULL, sample_col = "cluster", gene_id_col = "gene_id",
-  gene_id_type = c("entrez", "ensembl"), keggData = NULL,
-  p_col = "p_val_adj", p_threshold = 0.1)
+  background_ids = NULL, sample_col = "cluster",
+  gene_id_col = "gene_id", gene_id_type = c("entrez", "ensembl"),
+  keggData = NULL, p_col = "p_val_adj", p_threshold = 0.1)
 }
 \arguments{
 \item{results}{A multi-sample results table}
