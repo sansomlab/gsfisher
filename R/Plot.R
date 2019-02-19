@@ -5,7 +5,7 @@
 #' @param maxl  Max length of the descriptions
 #' 
 #' @export
-formatDescriptions <- function(xx, id,
+formatDescriptions <- function(xx,
                                remove=c(),
                                maxl=45)
 {
@@ -19,9 +19,13 @@ formatDescriptions <- function(xx, id,
   xx <- sapply(xx, function(x) if(x == toupper(x)) { tolower(x) } else { x }) 
   
   xx[is.na(xx)] <- "n/a"
-  xx[nchar(xx)>maxl] <- paste0(strtrim(xx[nchar(xx)>maxl], maxl), 
-                               " ",
-                               id[nchar(xx)>maxl])
+  
+  xx_idx <- 1:length(unique(xx))
+  names(xx_idx) <- unique(xx)
+  
+  long <- nchar(xx) > maxl                
+  xx[long] <- paste0(strtrim(xx[long], maxl),"..")
+  
   xx
 }
 
@@ -455,16 +459,16 @@ sampleEnrichmentDotplot <- function(results_table,
     xx$sample_id <- factor(xx[[sample_id_col]], levels=sample_levels) 
   }
   
-  if("description" %in% colnames(xx)) { label_col <- "description" } else { label_col <- "geneset_id" }
+  if("description" %in% colnames(xx)) { label_col <- "description" } else { label_col <-    "geneset_id" }
   
-  xx$geneset_label <- formatDescriptions(xx[[label_col]], xx$geneset_id, 
-                                         c("REACTOME_", "BIOCARTA_"), maxl) 
+  xx$y <- factor(xx[[selection_col]], 
+                 levels=rev(selected_genesets))
   
-  select_idx <- match(selected_genesets, xx[[selection_col]])
+  # reformat/truncate labels.
+  y_labels <- formatDescriptions(xx[[label_col]],
+                                 c("REACTOME_", "BIOCARTA_"), maxl) 
   
-  geneset_label_levels <- xx$geneset_label[select_idx]
-  xx$geneset_label <- factor(xx$geneset_label, 
-                           levels=rev(geneset_label_levels))
+  names(y_labels) <- xx[[selection_col]]
   
   # set the maximum odds ratio to the 90th quantile of the non-infinite data.
   xx$fill.var <- xx[[fill_var]]
@@ -480,7 +484,9 @@ sampleEnrichmentDotplot <- function(results_table,
   }
   
   ## Draw the plot.
-  gp <- ggplot(xx, aes(sample_id, geneset_label))
+  gp <- ggplot(xx, aes(sample_id, y))
+  
+  gp <- gp + scale_y_discrete(labels=y_labels)
   
   gp <- gp + geom_point(data=significant_enrichments, aes(size=n_fg, color=fill.var))
   gp <- gp + geom_point(data=insignificant_enrichments, aes(size=n_fg), color=non_significant_color)

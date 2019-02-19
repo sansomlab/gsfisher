@@ -37,7 +37,7 @@ sampleEnrichmentDotplot(results_table, p_col = "p.adj",
 
 \item{max_dot_size}{Maximum dot size (points)}
 
-\item{maxl}{The maximum lenght for the geneset labels}
+\item{maxl}{The maximum length for the geneset labels}
 }
 \description{
 Make a dot-plot of geneset enrichments across multiple samples/clusters
