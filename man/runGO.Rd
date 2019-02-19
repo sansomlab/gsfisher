@@ -4,8 +4,8 @@
 \alias{runGO}
 \title{Run gene set enrichement on Gene Ontology categories}
 \usage{
-runGO(foreground_ids, background_ids, gene_id_type = c("entrez", "ensembl"),
-  species = c("hs", "mm"), ...)
+runGO(foreground_ids, background_ids, gene_id_type = c("entrez",
+  "ensembl"), species = c("hs", "mm"), ...)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest
