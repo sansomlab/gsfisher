@@ -5,14 +5,19 @@
 \title{Visulalise a set of clustered genesets on a circular dendrogram}
 \usage{
 visualiseClusteredGenesets(results_table, geneset_clust = NULL,
-  odds_ratio_max_quantile = 0.9, highlight = c())
+  odds_ratio_max_quantile = 0.9, highlight = c(),
+  desc_col = "description")
 }
 \arguments{
+\item{results_table}{A table of geneset results.}
+
 \item{geneset_clust}{A hclust object (e.g. from "clusterGenesetsByGenes").}
 
 \item{odds_ratio_max_quantile}{A quantile to cap the odds.ratio at for visulisation purposes.}
 
 \item{highlight}{A vector of descriptions to highlight in the plot}
+
+\item{desc_col}{The column containing the geneset descriptions}
 }
 \description{
 Visulalise a set of clustered genesets on a circular dendrogram

@@ -29,6 +29,11 @@ filterGenesets <- function(results_table,
 )
 {
   
+  if(is.null(results_table))
+  {
+    stop("No results table given") 
+  }
+  
   ## Independently filter on geneset size before p-value correction.
   message("number of rows in table:", nrow(results_table))
   
@@ -38,6 +43,7 @@ filterGenesets <- function(results_table,
   results_table <- results_table[
     results_table$n_fg >= min_foreground_genes & !is.na(results_table$n_fg),]
   
+  if(nrow(results_table) == 0) { stop("No genesets passed filters") }
   message("number of rows retained:", nrow(results_table))
   
   ## Filter based on number of genes in the geneset
@@ -46,6 +52,7 @@ filterGenesets <- function(results_table,
   results_table <- results_table[
   results_table$n_set <= max_genes_geneset,]
   
+  if(nrow(results_table) == 0) { stop("No genesets passed filters") }
   message("number of rows retained:", nrow(results_table))
   
   
@@ -63,6 +70,7 @@ filterGenesets <- function(results_table,
       results_table[[p_col]] < pvalue_threshold & !is.na(results_table[[p_col]]), ]
   }
   
+  if(nrow(results_table) == 0) { stop("No genesets passed filters") }
   message("number of rows retained:", nrow(results_table))
   
   ## Filter based on odds ratio
@@ -71,15 +79,17 @@ filterGenesets <- function(results_table,
   results_table <- results_table[
     results_table$odds.ratio >= min_odds_ratio & !is.na(results_table$odds.ratio),]
   
+  if(nrow(results_table) == 0) { stop("No genesets passed filters") }
   print(dim(results_table))
+  
   ## Check for gene sets after filtering
-  if (nrow(results_table) == 0) {
-    warning("No gene set passed filters")
-  } else {
+  #if (nrow(results_table) == 0) {
+  #  warning("No gene set passed filters")
+  #} else {
     
   message("final number of rows retained:", nrow(results_table))
     
-  }
+  #}
   
   results_table
 }
