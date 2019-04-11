@@ -1,9 +1,9 @@
 #' Utility function to clean up desriptions for plots
-#' 
+#'
 #' @param descriptions Vector of descriptions to clean
-#' @param remove Vector of string patterns to delete 
+#' @param remove Vector of string patterns to delete
 #' @param maxl  Max length of the descriptions
-#' 
+#'
 #' @export
 formatDescriptions <- function(xx,
                                remove=c(),
@@ -14,24 +14,24 @@ formatDescriptions <- function(xx,
     xx <- gsub(rmstr, "", xx)
   }
   xx <- gsub("_", " ", xx)
-  
-  # covert all upper case strings to all lower case. 
-  xx <- sapply(xx, function(x) if(x == toupper(x)) { tolower(x) } else { x }) 
-  
+
+  # covert all upper case strings to all lower case.
+  xx <- sapply(xx, function(x) if(x == toupper(x)) { tolower(x) } else { x })
+
   xx[is.na(xx)] <- "n/a"
-  
+
   xx_idx <- 1:length(unique(xx))
   names(xx_idx) <- unique(xx)
-  
-  long <- nchar(xx) > maxl                
+
+  long <- nchar(xx) > maxl
   xx[long] <- paste0(strtrim(xx[long], maxl),"..")
-  
+
   xx
 }
 
 #' Get a list of top-genesets by cluster
 #' @param sort_by The column by which to sort the genesets
-#' 
+#'
 #' @export
 getSampleGenesets <- function(results_table,
                               sort_by = c("p.val", "p.adj","odds.ratio","score"),
@@ -46,7 +46,7 @@ getSampleGenesets <- function(results_table,
   } else {
     results_table <- results_table[order(results_table[[sample_id_col]],-results_table[[sort_by]]),]
   }
-    
+
   # set the maximum number of output rows
   ntake <- round(max_rows / length(unique(results_table[[sample_id_col]])))
 
@@ -54,19 +54,19 @@ getSampleGenesets <- function(results_table,
   hmap_genesets <- c()
 
   for ( sample in unique(results_table[[sample_id_col]])) {
-  
+
     temp <- results_table[results_table[[sample_id_col]] == sample, ]
     nrows <- nrow(temp)
     if (nrows==0) {
       print(paste0("no enriched genesets found for", sample_id_col, " : ", sample))
       next
     }
-  
+
   temp <- temp[1:min(nrows,ntake), ]
-  
+
   hmap_genesets <- c(hmap_genesets, temp$geneset_id)
   }
-  
+
   hmap_genesets <- unique(hmap_genesets)
   hmap_genesets
 }
@@ -120,18 +120,18 @@ sampleEnrichmentHeatmap <- function(
   title="Enriched gene sets"
 )
 {
-  
+
   results_table[[sample_id_col]] <- as.character(results_table[[sample_id_col]])
-  
+
   # handle the sample identifiers
   if(!is.null(sample_ids))
   {
     sample_ids <- as.character(sample_ids)
-    results_table <- results_table[results_table[[sample_id_col]] %in% sample_ids,] 
+    results_table <- results_table[results_table[[sample_id_col]] %in% sample_ids,]
   } else {
     sample_ids <- unique(results_table[[sample_id_col]])
   }
-  
+
   results_table <- filterGenesets(results_table,
                                   min_foregound_genes = min_genes,
                                   max_genes_geneset = 500,
@@ -144,64 +144,64 @@ sampleEnrichmentHeatmap <- function(
   ## Check for gene sets after filtering
   if (nrow(results_table) == 0) {
     stop("No gene set passed filters")
-  }  
-  
+  }
+
   total_n_sample <- length(sample_ids)
-  
+
   ## Compute the number of samples in which each gene set is enriched
   id_tab <- table(results_table$geneset_id)
   results_table$n_sample <- id_tab[results_table$geneset_id]
-  
+
   if (!show_common) {
     results_table <- results_table[results_table$n_sample < total_n_sample, ]
   }
-  
+
   ## Sort by p value
   results_table <- results_table[order(results_table[[sample_id_col]],results_table[[p_col]]),]
-  
+
   # set the maximum number of output rows
   ntake <- round(max_rows / total_n_sample)
-  
+
   # Identify the genesets to show in the heatmap
   hmap_genesets <- c()
-  
+
   for ( sample in unique(results_table[[sample_id_col]])) {
-    
+
     temp <- results_table[results_table[[sample_id_col]] == sample, ]
     nrows <- nrow(temp)
     if (nrows==0) {
       print(paste0("no enriched genesets found for", sample_id_col, " : ", sample))
       next
     }
-    
+
     temp <- temp[1:min(nrows,ntake), ]
-    
+
     hmap_genesets <- c(hmap_genesets, temp$geneset_id)
   }
-  
+
   if (!"description" %in% colnames(results_table)) {
     results_table$description <- results_table$geneset_id
   }
-  
+
   take <- c("geneset_id", "description", "odds.ratio", sample_id_col)
   temp <- results_table[results_table$geneset_id %in% unique(hmap_genesets), take]
-  
+
   # process the term description
   xx <- temp$description
   xx <- formatDescriptions(xx, c("REACTOME_", "BIOCARTA_"), maxl)
   temp$description <- xx
-  
-  
-  
+
+
+
   lu <- unique(temp[,c("geneset_id", "description")])
   lu$description <- make.unique(lu$description)
   rownames(lu) <- lu$geneset_id
-  
+
   # unmelt the data
   dd <- dcast(temp, geneset_id ~ get(sample_id_col), value.var="odds.ratio")
   rownames(dd) <- lu[dd$geneset_id, "description"]
   dd$geneset_id <- NULL
-  
+
   ## deal with missing samples
   for (sample in sample_ids) {
     if (!sample %in% colnames(dd)) {
@@ -209,14 +209,14 @@ sampleEnrichmentHeatmap <- function(
       dd[[sample]] <- NA
     }
   }
-  
+
   ## convert to matrix and deal with infinite values
   dd <- as.matrix(dd)
   # dd[is.na(dd)] <- 0
   dd[is.infinite(dd)] <- 256
-  
+
   m <- dd
-  
+
   ## heatmap.2 requires a matrix with a least 2 rows and 2 columns.
   if (nrow(m) == 1 ) {
     warning(
@@ -224,7 +224,7 @@ sampleEnrichmentHeatmap <- function(
       "It will be duplicated so that a heatmap can be made.")
     m <- rbind(m, m)
   }
-  
+
   ## this should almost never happen.
   if (ncol(m) == 1) {
     warning(
@@ -233,38 +233,38 @@ sampleEnrichmentHeatmap <- function(
     m <- cbind(m,m)
     scale="none"
   }
-  
+
   ## enforce column order
   cnames <- colnames(m)
   typed_names <- type.convert(cnames, as.is=T)
   cnames <- cnames[order(typed_names)]
   m <- m[, cnames]
-  
+
   ## compute the row dendrogram
   mtmp <- m
   mtmp[is.na(mtmp)] <- 0
-  
+
   mdist <- dist(mtmp)
   mclust <- hclust(mdist)
   mrowDen <- as.dendrogram(mclust)
-  
+
   # log2 transform the odds ratios
   mtrans <- log2(mtmp+1)
-  
+
   # return the NA values to the matrix
   mtrans[is.na(m)] <- NA
-  
+
   nbreaks <- 50 # number of graduations
   rm <- range(m)
-  
-  # specify the color range as 
+
+  # specify the color range as
   # minimum = minimum non-NA value
   # maximum = equivalent to an odds ratio of 256.
   rm <- c(min(log2(min_odds_ratio + 1)), 8)
   breaks=seq(rm[1], rm[2], diff(rm) / nbreaks)
-  
+
   colors <- colorRampPalette(brewer.pal(9, "YlOrRd"))
-  
+
   if(adjust_pvalues)
   {
     ylab = paste0("over-represented\ngenesets (",
@@ -274,7 +274,7 @@ sampleEnrichmentHeatmap <- function(
     ylab = paste0("over-represented\ngenesets (",
                   "p < ",pvalue_threshold, ")")
   }
-  
+
   op <- par() # backup current session settings
   par(cex.main=0.7)#, family="narrow")
   hm <- heatmap.2(
@@ -311,45 +311,48 @@ sampleEnrichmentHeatmap <- function(
 
 
 #' Visulalise a set of clustered genesets on a circular dendrogram
-#' 
-#' @param results_table
+#'
+#' @param results_table A table of geneset results.
 #' @param geneset_clust A hclust object (e.g. from "clusterGenesetsByGenes").
 #' @param odds_ratio_max_quantile A quantile to cap the odds.ratio at for visulisation purposes.
 #' @param highlight A vector of descriptions to highlight in the plot
-#'  
+#' @param desc_col The column containing the geneset descriptions
+#'
 #' @import ggplot2
 #' @import ggraph
-#'  
+#'
 #' @export
-#'  
-visualiseClusteredGenesets <- function(results_table, 
+#'
+visualiseClusteredGenesets <- function(results_table,
                                        geneset_clust = NULL,
                                        odds_ratio_max_quantile = 0.9,
-                                       highlight=c())
+                                       highlight = c(),
+                                       desc_col = "description")
 {
- 
+
   if(is.null(geneset_clust))
   {
-    geneset_clust <- clusterGenesetsByGenes(results_table) 
+    geneset_clust <- clusterGenesetsByGenes(results_table,
+                                            desc_col = desc_col)
   }
-   
+
   xx <- results_table
   
-  rownames(xx) <- xx$description
-  
+  rownames(xx) <- xx[[desc_col]]
+
   xx$capped.odds.ratio <- xx$odds.ratio
   or_ul <- quantile(xx$capped.odds.ratio[!is.infinite(xx$capped.odds.ratio)],0.9)
-  
+
   xx$capped.odds.ratio[xx$capped.odds.ratio>or_ul] <- or_ul
   xx$log.odds.ratio <- log(xx$capped.odds.ratio)
   or_mp <- mean(xx$log.odds.ratio)
-  
-  
+
+
   xx$highlight <- FALSE
-  xx$highlight[xx$description %in% highlight] <- TRUE
-  
+  xx$highlight[xx[[desc_col]] %in% highlight] <- TRUE
+
   my_graph <- as.dendrogram(geneset_clust)
-  
+
   # Classify nodes based on agreement between children
   my_graph <- tree_apply(my_graph, function(node, children, ...) {
     if (is.leaf(node)) {
@@ -377,29 +380,29 @@ visualiseClusteredGenesets <- function(results_table,
                                   highlight=attr(node, 'highlight'))
     node
   }, direction = 'up')
-  
+
   gp <- ggraph(my_graph, 'dendrogram', circular = TRUE)
   gp <- gp + geom_edge_elbow2()#aes(colour = node.group))
-  
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=highlight, 
+
+  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=highlight,
                                 angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="red",
                             size=3, hjust='outward')
-  
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=!highlight, 
+
+  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=!highlight,
                                 angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="black",
                             size=3, hjust='outward')
-  
+
   #gp <- gp + scale_color_manual(values=c("black","red"))
-  
-  gp <- gp + geom_node_point(aes(x = x*1.05, y=y*1.05, filter=leaf,  
-                                 size=ngenes, 
+
+  gp <- gp + geom_node_point(aes(x = x*1.05, y=y*1.05, filter=leaf,
+                                 size=ngenes,
                                  color=log.odds,
-  )) #, color=node.group)) 
+  )) #, color=node.group))
   gp <- gp + coord_fixed() +  ggforce::theme_no_axes()
-  
+
   gp <- gp + scale_color_gradient2(low="grey", mid="yellow", high="red",  midpoint=or_mp)
   gp <- gp + xlim(c(-2,2)) + ylim(c(-2,2))
-  
+
   gp
 }
 
@@ -408,8 +411,8 @@ visualiseClusteredGenesets <- function(results_table,
 #' Make a -log10 transform for ggplot.
 #' @import scales
 #' @export
-minus_log10_trans <- function() trans_new(name="minus_log10", 
-                                          function(x) -log10(x), 
+minus_log10_trans <- function() trans_new(name="minus_log10",
+                                          function(x) -log10(x),
                                           function(x) 10^-x,
                                           log_breaks(10),
                                           domain = c(1e-100,Inf))
@@ -418,7 +421,7 @@ minus_log10_trans <- function() trans_new(name="minus_log10",
 #' Make a dot-plot of geneset enrichments across multiple samples/clusters
 #' @param results_table The results table
 #' @param selected_genesets A vector of geneset slow in the plot
-#' @param selection_col The column against which the geneset selections will be matched 
+#' @param selection_col The column against which the geneset selections will be matched
 #' @param p_col The name of the column with the (e.g. adjusted) p-values
 #' @param pvalue_threshold The pvalue_threshold to be applied
 #' @param sample_id_col The column of the results_table containing the sample id
@@ -429,10 +432,11 @@ minus_log10_trans <- function() trans_new(name="minus_log10",
 #' @param min_dot_size Minimum dot size (points)
 #' @param max_dot_size Maximum dot size (points)
 #' @param maxl The maximum length for the geneset labels
+#' @param rotate_sample_labels Should the sample labels be rotated
 #' @import ggplot2
-#' 
+#'
 #' @export
-#' 
+#'
 sampleEnrichmentDotplot <- function(results_table,
                                     p_col="p.adj",
                                     pvalue_threshold=0.05,
@@ -448,82 +452,83 @@ sampleEnrichmentDotplot <- function(results_table,
                                     min_dot_size = 2,
                                     max_dot_size = 8,
                                     maxl = Inf,
+                                    rotate_sample_labels=FALSE,
                                     title = NULL)
 {
-  
+
   xx <- results_table[results_table[[selection_col]] %in% selected_genesets,]
-  
+
   if(is.null(sample_levels)) {
-    xx$sample_id <- as.factor(xx[[sample_id_col]]) 
+    xx$sample_id <- as.factor(xx[[sample_id_col]])
   } else {
-    xx$sample_id <- factor(xx[[sample_id_col]], levels=sample_levels) 
+    xx$sample_id <- factor(xx[[sample_id_col]], levels=sample_levels)
   }
-  
+
   if("description" %in% colnames(xx)) { label_col <- "description" } else { label_col <-    "geneset_id" }
-  
-  xx$y <- factor(xx[[selection_col]], 
+
+  xx$y <- factor(xx[[selection_col]],
                  levels=rev(selected_genesets))
-  
+
   # reformat/truncate labels.
   y_labels <- formatDescriptions(xx[[label_col]],
-                                 c("REACTOME_", "BIOCARTA_"), maxl) 
-  
+                                 c("REACTOME_", "BIOCARTA_"), maxl)
+
   names(y_labels) <- xx[[selection_col]]
-  
+
   # set the maximum odds ratio to the 90th quantile of the non-infinite data.
   xx$fill.var <- xx[[fill_var]]
-  xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
   
+  # catch case where all odds ratios are infinite.
+  if(min(xx$fill.var) != Inf)
+  {
+  
+  xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
+
+  } else { xx$fill.var <- 100 }
 
   significant_enrichments <- xx[xx[[p_col]] < pvalue_threshold & !is.na(xx[[p_col]]),]
   insignificant_enrichments <- xx[xx[[p_col]] > pvalue_threshold | is.na(xx[[p_col]]),]
-    
+
   if(fill_trans=="-log10")
   {
     fill_trans="minus_log10"
   }
-  
+
   ## Draw the plot.
   gp <- ggplot(xx, aes(sample_id, y))
-  
+
   gp <- gp + scale_y_discrete(labels=y_labels)
-  
+
   gp <- gp + geom_point(data=significant_enrichments, aes(size=n_fg, color=fill.var))
   gp <- gp + geom_point(data=insignificant_enrichments, aes(size=n_fg), color=non_significant_color)
-  
+
   if(!is.null(fill_trans))
   {
-    gp <- gp + scale_color_gradientn(colors=fill_colors, 
-                                   trans=fill_trans, 
+    gp <- gp + scale_color_gradientn(colors=fill_colors,
+                                   trans=fill_trans,
                                    name=fill_var)
   } else {
-    gp <- gp + scale_color_gradient2(colors=fill_colors, 
+    gp <- gp + scale_color_gradient2(colors=fill_colors,
                                     name=fill_var)
   }
-  
+
   gp <- gp + scale_size_continuous(range = c(min_dot_size,max_dot_size),
                                    trans="log2")
-  
+
   gp <- gp + scale_x_discrete(drop=FALSE)
-  
-  gp <- gp + xlab("Cluster") 
-  gp <- gp + theme_bw() 
-  
+
+  gp <- gp + xlab(sample_id_col)
+  gp <- gp + theme_bw()
+
+  if(rotate_sample_labels)
+  {
+    gp <- gp + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  }
+
   if(!is.null(title))
   {
-    gp <- gp + ylab(title) 
+    gp <- gp + ylab(title)
   }
-  
+
   gp
 }
-
-
-
-
-
-
-
-
-
-
-
