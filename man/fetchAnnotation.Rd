@@ -4,7 +4,8 @@
 \alias{fetchAnnotation}
 \title{Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart}
 \usage{
-fetchAnnotation(species = c("hs", "mm"), ensembl_version = NULL)
+fetchAnnotation(species = c("hs", "mm"), ensembl_version = NULL,
+  ensembl_host = NULL)
 }
 \arguments{
 \item{species}{Species identifier (only "hs" or "mm" are supported).}
@@ -12,6 +13,9 @@ fetchAnnotation(species = c("hs", "mm"), ensembl_version = NULL)
 \item{ensembl_version}{Version of the ensembl annotation to use,
 passed to \code{biomaRt::useEnsembl}.
 The default \code{NULL} uses the current annotation release.}
+
+\item{ensembl_host}{The address of the ensembl host
+The default \code{NULL} uses www.ensembl.org}
 }
 \value{
 A data.frame of three columns:

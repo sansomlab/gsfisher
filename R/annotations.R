@@ -3,6 +3,8 @@
 #' Fetches annotations for human ("hs") or mouse ("mm") from the
 #' Ensembl BioMart.
 #'
+#' @param ensembl_host The address of the ensembl host
+#' The default \code{NULL} uses www.ensembl.org
 #' @param species Species identifier (only "hs" or "mm" are supported).
 #' @param ensembl_version Version of the ensembl annotation to use,
 #' passed to \code{biomaRt::useEnsembl}.
@@ -18,7 +20,7 @@
 #'
 #' @export
 #'
-#' @importFrom biomaRt useEnsembl getBM
+#' @importFrom biomaRt useEnsembl getBM listAttributes
 #'
 #' @author Steve Sansom
 #'
@@ -27,26 +29,58 @@
 #' ann_hs <- fetchAnnotation(species="hs")
 #' ann_mm <- fetchAnnotation(species="mm")
 #' }
-fetchAnnotation <- function(species=c("hs", "mm"), ensembl_version=NULL) {
+fetchAnnotation <- function(species=c("hs", "mm"),
+                            ensembl_version=NULL,
+                            ensembl_host=NULL)
+{
 
     species <- match.arg(species)
 
     if (species == "hs") {
         message("Using human biomart ...")
         dataset <- "hsapiens_gene_ensembl"
-        namecol <- "external_gene_name"
+        name_col <- "external_gene_name"
     }
     if (species == "mm") {
         message("Using mouse biomart ...")
         dataset <- "mmusculus_gene_ensembl"
-        namecol <- "mgi_symbol"
+        name_col <- "mgi_symbol"
     }
 
-    ensembl <- useEnsembl(biomart="ensembl", dataset=dataset, version=ensembl_version)
-
+    if(is.null(ensembl_host))
+        {
+            message("Using default host")
+            ensembl <- useEnsembl(biomart="ensembl",
+                                  dataset=dataset,
+                                  version=ensembl_version)
+        } else {
+            message("Using host: ", ensembl_host)
+            ensembl <- useEnsembl(biomart="ensembl",
+                                  host=ensembl_host,
+                                  dataset=dataset,
+                                  version=ensembl_version)
+        }
+    
+    # Deal with inconsistent biomart identifier names
+    attrib_names <- listAttributes(ensembl)$name
+    
+    if("entrezgene" %in% attrib_names)
+    {
+      entrez_col = "entrezgene" 
+    } else if("entrezgene_id" %in% attrib_names)
+    {
+      entrez_col = "entrezgene_id"
+    } else { stop("Entrez identifier attribute not found") }
+    
+    message("Entrez identified attribute name set to: ", entrez_col)
+    
+    message("Retrieving annotation")
+    
     annotation <- getBM(
-        attributes=c("ensembl_gene_id", "entrezgene", namecol), mart=ensembl)
+        attributes=c("ensembl_gene_id", entrez_col, name_col), mart=ensembl)
 
+    message("Annotation retrieved")
+    
     colnames(annotation) <- c("ensembl_id", "entrez_id", "gene_name")
     return(annotation)
 }
@@ -172,9 +206,9 @@ mapENTREZhuman2mouse <- function(GMT, ensembl_version=NULL) {
 
 # Get the org.Xx.eg.db SYMBOL bimap object.
 #' @param species Species, "mm" or "hs"
-#' 
+#'
 #' @export
-#' 
+#'
 #' @importFrom org.Mm.eg.db org.Mm.egSYMBOL
 #' @importFrom org.Hs.eg.db org.Hs.egSYMBOL
 getSYMBOL <- function(species=c("mm","hs"))
@@ -193,8 +227,8 @@ getSYMBOL <- function(species=c("mm","hs"))
 
 #' Get the org.Xx.eg.db GO2ALLEGS bimap object.
 #' @param species Species, "mm" or "hs"
-#' 
-#' 
+#'
+#'
 #' @export
 getGO <- function(species=c("mm","hs"))
 {
@@ -231,19 +265,19 @@ getENSEMBL <- function(species=c("mm","hs"))
 #' @param ensembl_ids A vector of ensembl gene_ids
 #' @param ENSEMBL A org.Xx.eg.db ENSEMBL bimap object.
 #' @param species Either "mm" or "hs".
-#' 
+#'
 #' @export
 ensembl2entrez <- function(ensembl_ids, ENSEMBL=NULL,species=c("mm","hs"))
 {
-  
+
   if(is.null(ENSEMBL)) {
     species <- match.arg(species)
     ENSEMBL <- getENSEMBL(species)
   }
-  
+
   entrez <- na.omit(as.vector(unlist(AnnotationDbi::mget(
     ensembl_ids, revmap(ENSEMBL),ifnotfound = NA))))
-  
+
   entrez
 }
 
@@ -255,9 +289,9 @@ getEntrez <- function(gene_ids,gene_id_type=c("ensembl","entrez"), species=c("mm
 {
   gene_id_type <- match.arg(gene_id_type)
   species <- match.arg(species)
-  
+
   ENSEMBL <- getENSEMBL(species)
-  
+
   if(gene_id_type == "ensembl")
   {
     if(!startsWith(gene_ids[1],"ENS")) {
@@ -267,11 +301,8 @@ getEntrez <- function(gene_ids,gene_id_type=c("ensembl","entrez"), species=c("mm
   } else if(gene_id_type =="entrez") {
     if(startsWith(gene_ids[1],"ENS")) {
       stop('"entrez" gene ids specified but "ensembl" gene ids supplied')
-    } 
+    }
     entrez_ids <- gene_ids
   } else { stop('gene_id_type must be either "ensembl" or "entrez"') }
   entrez_ids
 }
-
-
-  
