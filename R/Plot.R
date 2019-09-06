@@ -310,7 +310,7 @@ sampleEnrichmentHeatmap <- function(
 }
 
 
-#' Visulalise a set of clustered genesets on a circular dendrogram
+#' Visualise a set of clustered genesets on a circular dendrogram
 #'
 #' @param results_table A table of geneset results.
 #' @param geneset_clust A hclust object (e.g. from "clusterGenesetsByGenes").
@@ -320,6 +320,7 @@ sampleEnrichmentHeatmap <- function(
 #'
 #' @import ggplot2
 #' @import ggraph
+#' @import tidygraph
 #'
 #' @export
 #'
@@ -337,7 +338,7 @@ visualiseClusteredGenesets <- function(results_table,
   }
 
   xx <- results_table
-  
+
   rownames(xx) <- xx[[desc_col]]
 
   xx$capped.odds.ratio <- xx$odds.ratio
@@ -353,44 +354,44 @@ visualiseClusteredGenesets <- function(results_table,
 
   my_graph <- as.dendrogram(geneset_clust)
 
-  # Classify nodes based on agreement between children
-  my_graph <- tree_apply(my_graph, function(node, children, ...) {
-    if (is.leaf(node)) {
-     # attr(node, 'group') <- as.character(groups[attr(node, 'label')])
-      attr(node, 'log.odds') <- xx[attr(node, 'label'), "log.odds.ratio"]
-      attr(node, 'ngenes') <- xx[attr(node, 'label'), "n_fg"]
-      attr(node, 'highlight') <- xx[attr(node, 'label'), "highlight"]
-    } else {
-      classes <- unique(sapply(children, attr, which = 'group'))
-      if (length(classes) == 1 && !anyNA(classes)) {
-      #  attr(node, 'group') <- classes
-        attr(node, 'log.odds') <- NA
-        attr(node, 'ngenes') <- NA
-        attr(node, 'highlight') <- FALSE
-      } else {
-      #  attr(node, 'group') <- NA
-        attr(node, 'log.odds') <- NA
-        attr(node, 'ngenes') <- NA
-        attr(node, 'highlight') <- FALSE
-      }
-    }
-    attr(node, 'nodePar') <- list(log.odds = attr(node, 'log.odds'),
-                                  # group = attr(node, 'group'),
-                                  ngenes = attr(node, 'ngenes'),
-                                  highlight=attr(node, 'highlight'))
-    node
-  }, direction = 'up')
+  my_graph <- as_tbl_graph(my_graph)
 
-  gp <- ggraph(my_graph, 'dendrogram', circular = TRUE)
+  summarise_node_FUN <- function(node, path, ..., value.name) {
+    value_map <- c(log.odds.ratio=NA, n_fg=NA, highlight=FALSE)
+    value_set <- as.vector(value_map[value.name])
+    if (nrow(path) == 0) {
+      NAME <- .N()$label[node]
+      xx[NAME, value.name]
+    } else {
+      value_set
+    }
+  }
+
+  my_graph <- my_graph %>%
+    mutate(
+      log.odds = unlist(map_bfs_back(node_is_root(), .f = summarise_node_FUN, value.name = "log.odds.ratio")),
+      ngenes = unlist(map_bfs_back(node_is_root(), .f = summarise_node_FUN, value.name = "n_fg")),
+      highlight = unlist(map_bfs_back(node_is_root(), .f = summarise_node_FUN, value.name = "highlight"))
+    )
+
+  layout <- create_layout(graph = my_graph, layout = 'dendrogram', circular = TRUE)
+
+  gp <- ggraph(graph = layout, layout = 'dendrogram', circular = TRUE)
   gp <- gp + geom_edge_elbow2()#aes(colour = node.group))
 
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=highlight,
-                                angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="red",
-                            size=3, hjust='outward')
+  gp <- gp + geom_node_text(
+    data=subset(layout, highlight),
+    mapping=aes(x=x*1.1, y=y*1.1,
+        angle = -((-node_angle(x, y)+90)%%180)+90,
+        label = label),
+    color="red", size=3, hjust='outward')
 
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=!highlight,
-                                angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="black",
-                            size=3, hjust='outward')
+  gp <- gp + geom_node_text(
+    data=subset(layout, !highlight),
+    mapping=aes(x = x*1.1, y=y*1.1,
+                angle = -((-node_angle(x, y)+90)%%180)+90,
+                label = label),
+    color="black", size=3, hjust='outward')
 
   #gp <- gp + scale_color_manual(values=c("black","red"))
 
@@ -477,11 +478,11 @@ sampleEnrichmentDotplot <- function(results_table,
 
   # set the maximum odds ratio to the 90th quantile of the non-infinite data.
   xx$fill.var <- xx[[fill_var]]
-  
+
   # catch case where all odds ratios are infinite.
   if(min(xx$fill.var) != Inf)
   {
-  
+
   xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
 
   } else { xx$fill.var <- 100 }
