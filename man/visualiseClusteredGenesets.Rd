@@ -2,7 +2,7 @@
 % Please edit documentation in R/Plot.R
 \name{visualiseClusteredGenesets}
 \alias{visualiseClusteredGenesets}
-\title{Visualise a set of clustered genesets on a circular dendrogram}
+\title{Visulalise a set of clustered genesets on a circular dendrogram}
 \usage{
 visualiseClusteredGenesets(results_table, geneset_clust = NULL,
   odds_ratio_max_quantile = 0.9, highlight = c(),
@@ -20,5 +20,5 @@ visualiseClusteredGenesets(results_table, geneset_clust = NULL,
 \item{desc_col}{The column containing the geneset descriptions}
 }
 \description{
-Visualise a set of clustered genesets on a circular dendrogram
+Visulalise a set of clustered genesets on a circular dendrogram
 }
