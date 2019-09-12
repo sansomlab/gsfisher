@@ -6,7 +6,7 @@
 \usage{
 clusterGenesetsByGenes(results_table, genes_col = "gene_names",
   dist_method = "manhattan", hclust_method = "ward.D2",
-  desc_col = "description")
+  id_col = "geneset_id")
 }
 \arguments{
 \item{results_table}{The table of geneset results}
@@ -17,7 +17,7 @@ clusterGenesetsByGenes(results_table, genes_col = "gene_names",
 
 \item{hclust_method}{The name of the clustering method to pass to "hclust"}
 
-\item{desc_col}{The column containing the geneset description}
+\item{id_col}{The column containing a unique identifier for the geneset}
 }
 \description{
 Cluster a set of genesets by gene membership

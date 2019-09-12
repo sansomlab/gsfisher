@@ -6,7 +6,8 @@
 \usage{
 visualiseClusteredGenesets(results_table, geneset_clust = NULL,
   odds_ratio_max_quantile = 0.9, highlight = c(),
-  desc_col = "description")
+  id_col = "geneset_id", name_col = "description",
+  ngenes_col = "n_fg", odds_ratio_col = "odds.ratio")
 }
 \arguments{
 \item{results_table}{A table of geneset results.}
@@ -17,7 +18,13 @@ visualiseClusteredGenesets(results_table, geneset_clust = NULL,
 
 \item{highlight}{A vector of descriptions to highlight in the plot}
 
-\item{desc_col}{The column containing the geneset descriptions}
+\item{id_col}{The column containing the unique geneset identifiers}
+
+\item{name_col}{The column containing the geneset name}
+
+\item{ngenes_col}{The column containing the number of geneset genes in the foreground}
+
+\item{odds_ratio_col}{The column containing the odds ratio for geneset enrichment}
 }
 \description{
 Visulalise a set of clustered genesets on a circular dendrogram

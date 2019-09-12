@@ -133,11 +133,11 @@ sampleEnrichmentHeatmap <- function(
   }
 
   results_table <- filterGenesets(results_table,
-                                  min_foregound_genes = min_genes,
+                                  min_foreground_genes = min_genes,
                                   max_genes_geneset = 500,
                                   min_odds_ratio = min_odds_ratio,
                                   p_col = p_col,
-                                  adjust_pvalues = adjust_pvalues,
+                                  use_adjusted_pvalues = adjust_pvalues,
                                   padjust_method = padjust_method,
                                   pvalue_threshold = pvalue_threshold)
 
@@ -316,10 +316,14 @@ sampleEnrichmentHeatmap <- function(
 #' @param geneset_clust A hclust object (e.g. from "clusterGenesetsByGenes").
 #' @param odds_ratio_max_quantile A quantile to cap the odds.ratio at for visulisation purposes.
 #' @param highlight A vector of descriptions to highlight in the plot
-#' @param desc_col The column containing the geneset descriptions
+#' @param name_col The column containing the geneset name
+#' @param id_col The column containing the unique geneset identifiers
+#' @param ngenes_col The column containing the number of geneset genes in the foreground
+#' @param odds_ratio_col The column containing the odds ratio for geneset enrichment
 #'
 #' @import ggplot2
 #' @import ggraph
+#' @import tidygraph
 #'
 #' @export
 #'
@@ -327,77 +331,71 @@ visualiseClusteredGenesets <- function(results_table,
                                        geneset_clust = NULL,
                                        odds_ratio_max_quantile = 0.9,
                                        highlight = c(),
-                                       desc_col = "description")
-{
+                                       id_col = "geneset_id",
+                                       name_col = "description",
+                                       ngenes_col = "n_fg",
+                                       odds_ratio_col = "odds.ratio")
+{ 
 
   if(is.null(geneset_clust))
   {
+    # cluster the geneset by gene membership  
     geneset_clust <- clusterGenesetsByGenes(results_table,
-                                            desc_col = desc_col)
+                                            id_col = id_col)
   }
 
   xx <- results_table
   
-  rownames(xx) <- xx[[desc_col]]
+  rownames(xx) <- xx[[id_col]]
 
-  xx$capped.odds.ratio <- xx$odds.ratio
+  xx$ngenes <- xx[[ngenes_col]]
+  
+  xx$capped.odds.ratio <- xx[[odds_ratio_col]]
   or_ul <- quantile(xx$capped.odds.ratio[!is.infinite(xx$capped.odds.ratio)],0.9)
 
   xx$capped.odds.ratio[xx$capped.odds.ratio>or_ul] <- or_ul
-  xx$log.odds.ratio <- log(xx$capped.odds.ratio)
-  or_mp <- mean(xx$log.odds.ratio)
+  xx$log.odds <- log(xx$capped.odds.ratio)
+  
+  # get the mean of the log.odds for setting the midpoint
+  # of the ggplot color scale.
+  or_mp <- mean(xx$log.odds)
 
-
+  if(name_col %in% colnames(xx))
+  {
+    xx$name <- xx[[name_col]]
+  } else { xx$name <- xx[[id_col]] }
+  
   xx$highlight <- FALSE
-  xx$highlight[xx[[desc_col]] %in% highlight] <- TRUE
+  xx$highlight[xx[[name_col]] %in% highlight] <- TRUE
 
-  my_graph <- as.dendrogram(geneset_clust)
+    my_graph <- as.dendrogram(geneset_clust)
 
-  # Classify nodes based on agreement between children
-  my_graph <- tree_apply(my_graph, function(node, children, ...) {
-    if (is.leaf(node)) {
-     # attr(node, 'group') <- as.character(groups[attr(node, 'label')])
-      attr(node, 'log.odds') <- xx[attr(node, 'label'), "log.odds.ratio"]
-      attr(node, 'ngenes') <- xx[attr(node, 'label'), "n_fg"]
-      attr(node, 'highlight') <- xx[attr(node, 'label'), "highlight"]
-    } else {
-      classes <- unique(sapply(children, attr, which = 'group'))
-      if (length(classes) == 1 && !anyNA(classes)) {
-      #  attr(node, 'group') <- classes
-        attr(node, 'log.odds') <- NA
-        attr(node, 'ngenes') <- NA
-        attr(node, 'highlight') <- FALSE
-      } else {
-      #  attr(node, 'group') <- NA
-        attr(node, 'log.odds') <- NA
-        attr(node, 'ngenes') <- NA
-        attr(node, 'highlight') <- FALSE
-      }
-    }
-    attr(node, 'nodePar') <- list(log.odds = attr(node, 'log.odds'),
-                                  # group = attr(node, 'group'),
-                                  ngenes = attr(node, 'ngenes'),
-                                  highlight=attr(node, 'highlight'))
-    node
-  }, direction = 'up')
-
-  gp <- ggraph(my_graph, 'dendrogram', circular = TRUE)
+  # convert to tidy graph
+  my_graph <- as_tbl_graph(my_graph)
+  
+  # add the leaf node attributes to the tidy graph
+  leaf_data <- xx[,c("name", "ngenes", "log.odds", "highlight")]
+  leaf_data$label <- rownames(leaf_data)
+  my_graph <- left_join(my_graph, leaf_data, by="label")
+  
+  # draw the dendrogram
+  gp <- ggraph(my_graph, 'dendrogram', circular = TRUE, height = height)
   gp <- gp + geom_edge_elbow2()#aes(colour = node.group))
 
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=highlight,
-                                angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="red",
+  # add the leaf node names
+  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter= leaf & highlight,
+                                angle = -((-node_angle(x, y)+90)%%180)+90, label = name), color="red",
                             size=3, hjust='outward')
 
-  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter=!highlight,
-                                angle = -((-node_angle(x, y)+90)%%180)+90, label = label), color="black",
+  gp <- gp + geom_node_text(aes(x = x*1.1, y=y*1.1, filter= leaf & !highlight, #filter=!highlight,
+                                angle = -((-node_angle(x, y)+90)%%180)+90, label = name), color="black",
                             size=3, hjust='outward')
 
-  #gp <- gp + scale_color_manual(values=c("black","red"))
-
+  # add the leaf node points
   gp <- gp + geom_node_point(aes(x = x*1.05, y=y*1.05, filter=leaf,
                                  size=ngenes,
-                                 color=log.odds,
-  )) #, color=node.group))
+                                 color=log.odds))
+  
   gp <- gp + coord_fixed() +  ggforce::theme_no_axes()
 
   gp <- gp + scale_color_gradient2(low="grey", mid="yellow", high="red",  midpoint=or_mp)
