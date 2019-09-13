@@ -7,7 +7,7 @@ Authors@R: c(person("Steve", "Sansom", role=c("aut", "cre"),
     person("Kevin", "Rue-Albrecht", role="aut",
     email="kevin.rue-albrecht@kennedy.ox.ac.uk"))
 Maintainer: Steve Sansom <stephen.sansom@kennedy.ox.ac.uk>
-Description: A package for performing basic simple hypergeometric
+Description: A package for performing simple hypergeometric
     geneset over-enrichment analysis on multiple sets of genes of interest
     (such as clusters from single-cell RNA-seq analysis).
 License: GPL-2

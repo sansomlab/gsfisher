@@ -4,7 +4,7 @@
 #' @param genes_col The name of the column containing comma-separated genenames
 #' @param dist_method The name of the distance method to pass to "dist"
 #' @param hclust_method The name of the clustering method to pass to "hclust"
-#' @param desc_col The column containing the geneset description
+#' @param id_col The column containing a unique identifier for the geneset
 #' 
 #' @export
 #' 
@@ -12,12 +12,12 @@ clusterGenesetsByGenes <- function(results_table,
                                    genes_col = "gene_names",
                                    dist_method = "manhattan",
                                    hclust_method = "ward.D2",
-                                   desc_col = "description")
+                                   id_col = "geneset_id")
 {
   
   # get the per-geneset gene lists
   gene_lists <- sapply(results_table[[genes_col]], function(x) strsplit(x, ","))
-  names(gene_lists) <- results_table[[desc_col]]
+  names(gene_lists) <- results_table[[id_col]]
   
   all_genes <- unique(unlist(gene_lists))
   
