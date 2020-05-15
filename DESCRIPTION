@@ -12,6 +12,7 @@ Description: A package for performing simple hypergeometric
     (such as clusters from single-cell RNA-seq analysis).
 License: GPL-2
 RoxygenNote: 6.1.1
+biocViews:
 Imports: biomaRt,
     AnnotationDbi,
     GO.db,
