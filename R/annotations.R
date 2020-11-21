@@ -60,27 +60,27 @@ fetchAnnotation <- function(species=c("hs", "mm"),
                                   dataset=dataset,
                                   version=ensembl_version)
         }
-    
+
     # Deal with inconsistent biomart identifier names
     attrib_names <- listAttributes(ensembl)$name
-    
+
     if("entrezgene" %in% attrib_names)
     {
-      entrez_col = "entrezgene" 
+      entrez_col = "entrezgene"
     } else if("entrezgene_id" %in% attrib_names)
     {
       entrez_col = "entrezgene_id"
     } else { stop("Entrez identifier attribute not found") }
-    
+
     message("Entrez identified attribute name set to: ", entrez_col)
-    
+
     message("Retrieving annotation")
-    
+
     annotation <- getBM(
         attributes=c("ensembl_gene_id", entrez_col, name_col), mart=ensembl)
 
     message("Annotation retrieved")
-    
+
     colnames(annotation) <- c("ensembl_id", "entrez_id", "gene_name")
     return(annotation)
 }
@@ -185,19 +185,33 @@ mapENTREZhuman2mouse <- function(GMT, ensembl_version=NULL) {
     ## only map one:one orthologs.
     human2mouse <- human2mouse[human2mouse$mmusculus_homolog_orthology_type == "ortholog_one2one",]
 
-    human2entrez <- getBM(attributes=c('ensembl_gene_id','entrezgene'),
+    # Deal with inconsistent biomart identifier names
+    attrib_names <- listAttributes(humanEnsembl)$name
+
+    if("entrezgene" %in% attrib_names)
+    {
+      entrez_col = "entrezgene"
+    } else if("entrezgene_id" %in% attrib_names)
+    {
+      entrez_col = "entrezgene_id"
+    } else { stop("Entrez identifier attribute not found") }
+
+    message("Entrez identified attribute name set to: ", entrez_col)
+
+
+    human2entrez <- getBM(attributes=c('ensembl_gene_id', entrez_col),
                           mart = humanEnsembl)
 
-    mouse2entrez <- getBM(attributes=c('ensembl_gene_id','entrezgene'),
+    mouse2entrez <- getBM(attributes=c('ensembl_gene_id', entrez_col),
                           mart = mouseEnsembl)
 
     mmGMT <- list()
     for(category  in names(GMT)) {
         human_entrez <- GMT[[category]]
 
-        human_ensembl <- human2entrez$ensembl_gene_id[human2entrez$entrezgene %in% GMT[[category]]]
+        human_ensembl <- human2entrez$ensembl_gene_id[human2entrez[[entrez_col]] %in% GMT[[category]]]
         mouse_homolog <- human2mouse$mmusculus_homolog_ensembl_gene[human2mouse$ensembl_gene_id %in% human_ensembl]
-        mouse_entrez <- unique(mouse2entrez$entrezgene[mouse2entrez$ensembl_gene_id %in% mouse_homolog])
+        mouse_entrez <- unique(mouse2entrez[[entrez_col]][mouse2entrez$ensembl_gene_id %in% mouse_homolog])
         mmGMT[[category]] <- mouse_entrez[!is.na(mouse_entrez)]
     }
 

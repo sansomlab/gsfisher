@@ -9,7 +9,9 @@ formatDescriptions <- function(xx,
                                remove=c(),
                                maxl=45)
 {
-  for(rmstr in remove)
+    xx[is.na(xx)] <- "NA"
+
+    for(rmstr in remove)
   {
     xx <- gsub(rmstr, "", xx)
   }
@@ -335,27 +337,27 @@ visualiseClusteredGenesets <- function(results_table,
                                        name_col = "description",
                                        ngenes_col = "n_fg",
                                        odds_ratio_col = "odds.ratio")
-{ 
+{
 
   if(is.null(geneset_clust))
   {
-    # cluster the geneset by gene membership  
+    # cluster the geneset by gene membership
     geneset_clust <- clusterGenesetsByGenes(results_table,
                                             id_col = id_col)
   }
 
   xx <- results_table
-  
+
   rownames(xx) <- xx[[id_col]]
 
   xx$ngenes <- xx[[ngenes_col]]
-  
+
   xx$capped.odds.ratio <- xx[[odds_ratio_col]]
   or_ul <- quantile(xx$capped.odds.ratio[!is.infinite(xx$capped.odds.ratio)],0.9)
 
   xx$capped.odds.ratio[xx$capped.odds.ratio>or_ul] <- or_ul
   xx$log.odds <- log(xx$capped.odds.ratio)
-  
+
   # get the mean of the log.odds for setting the midpoint
   # of the ggplot color scale.
   or_mp <- mean(xx$log.odds)
@@ -364,7 +366,7 @@ visualiseClusteredGenesets <- function(results_table,
   {
     xx$name <- xx[[name_col]]
   } else { xx$name <- xx[[id_col]] }
-  
+
   xx$highlight <- FALSE
   xx$highlight[xx[[name_col]] %in% highlight] <- TRUE
 
@@ -372,12 +374,12 @@ visualiseClusteredGenesets <- function(results_table,
 
   # convert to tidy graph
   my_graph <- as_tbl_graph(my_graph)
-  
+
   # add the leaf node attributes to the tidy graph
   leaf_data <- xx[,c("name", "ngenes", "log.odds", "highlight")]
   leaf_data$label <- rownames(leaf_data)
   my_graph <- left_join(my_graph, leaf_data, by="label")
-  
+
   # draw the dendrogram
   gp <- ggraph(my_graph, 'dendrogram', circular = TRUE, height = height)
   gp <- gp + geom_edge_elbow2()#aes(colour = node.group))
@@ -395,7 +397,7 @@ visualiseClusteredGenesets <- function(results_table,
   gp <- gp + geom_node_point(aes(x = x*1.05, y=y*1.05, filter=leaf,
                                  size=ngenes,
                                  color=log.odds))
-  
+
   gp <- gp + coord_fixed() +  ggforce::theme_no_axes()
 
   gp <- gp + scale_color_gradient2(low="grey", mid="yellow", high="red",  midpoint=or_mp)
@@ -475,11 +477,11 @@ sampleEnrichmentDotplot <- function(results_table,
 
   # set the maximum odds ratio to the 90th quantile of the non-infinite data.
   xx$fill.var <- xx[[fill_var]]
-  
+
   # catch case where all odds ratios are infinite.
   if(min(xx$fill.var) != Inf)
   {
-  
+
   xx$fill.var[xx$fill.var == Inf] <- quantile(xx$fill.var[!xx$fill.var==Inf], fill_max_quantile)
 
   } else { xx$fill.var <- 100 }
