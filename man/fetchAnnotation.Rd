@@ -4,8 +4,11 @@
 \alias{fetchAnnotation}
 \title{Fetch ENSEMBL ids, ENTREZ ids and gene names using bioMart}
 \usage{
-fetchAnnotation(species = c("hs", "mm"), ensembl_version = NULL,
-  ensembl_host = NULL)
+fetchAnnotation(
+  species = c("hs", "mm"),
+  ensembl_version = NULL,
+  ensembl_host = NULL
+)
 }
 \arguments{
 \item{species}{Species identifier (only "hs" or "mm" are supported).}

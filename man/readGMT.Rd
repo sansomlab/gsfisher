@@ -12,9 +12,6 @@ readGMT(filepath)
 \description{
 Read gene sets from a GMT file
 }
-\details{
-
-}
 \examples{
 gmtFile <- system.file(package = "gsfisher", "extdata", "kegg_hs.gmt")
 ann_gmt <- readGMT(gmtFile)

@@ -4,9 +4,13 @@
 \alias{clusterGenesetsByGenes}
 \title{Cluster a set of genesets by gene membership}
 \usage{
-clusterGenesetsByGenes(results_table, genes_col = "gene_names",
-  dist_method = "manhattan", hclust_method = "ward.D2",
-  id_col = "geneset_id")
+clusterGenesetsByGenes(
+  results_table,
+  genes_col = "gene_names",
+  dist_method = "manhattan",
+  hclust_method = "ward.D2",
+  id_col = "geneset_id"
+)
 }
 \arguments{
 \item{results_table}{The table of geneset results}

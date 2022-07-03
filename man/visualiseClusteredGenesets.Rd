@@ -4,10 +4,16 @@
 \alias{visualiseClusteredGenesets}
 \title{Visulalise a set of clustered genesets on a circular dendrogram}
 \usage{
-visualiseClusteredGenesets(results_table, geneset_clust = NULL,
-  odds_ratio_max_quantile = 0.9, highlight = c(),
-  id_col = "geneset_id", name_col = "description",
-  ngenes_col = "n_fg", odds_ratio_col = "odds.ratio")
+visualiseClusteredGenesets(
+  results_table,
+  geneset_clust = NULL,
+  odds_ratio_max_quantile = 0.9,
+  highlight = c(),
+  id_col = "geneset_id",
+  name_col = "description",
+  ngenes_col = "n_fg",
+  odds_ratio_col = "odds.ratio"
+)
 }
 \arguments{
 \item{results_table}{A table of geneset results.}
