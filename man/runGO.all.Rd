@@ -4,10 +4,16 @@
 \alias{runGO.all}
 \title{Run GO analysis on a multi-sample results table.}
 \usage{
-runGO.all(results = NULL, species = c("mm", "hs"),
-  background_ids = NULL, gene_id_col = "gene_id",
-  gene_id_type = c("entrez", "ensembl"), sample_col = "cluster",
-  p_col = "p_val_adj", p_threshold = 0.1)
+runGO.all(
+  results = NULL,
+  species = c("mm", "hs"),
+  background_ids = NULL,
+  gene_id_col = "gene_id",
+  gene_id_type = c("entrez", "ensembl"),
+  sample_col = "cluster",
+  p_col = "p_val_adj",
+  p_threshold = 0.1
+)
 }
 \arguments{
 \item{results}{A multi-sample results table}

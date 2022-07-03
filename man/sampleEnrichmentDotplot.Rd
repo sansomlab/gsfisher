@@ -4,14 +4,25 @@
 \alias{sampleEnrichmentDotplot}
 \title{Make a dot-plot of geneset enrichments across multiple samples/clusters}
 \usage{
-sampleEnrichmentDotplot(results_table, p_col = "p.adj",
-  pvalue_threshold = 0.05, selected_genesets = c(),
-  selection_col = "description", sample_id_col = "cluster",
-  sample_levels = NULL, fill_var = "odds.ratio", fill_trans = "log2",
-  fill_colors = c("yellow", "red", "brown"), fill_max_quantile = 1,
-  non_significant_color = "grey90", min_dot_size = 2,
-  max_dot_size = 8, maxl = Inf, rotate_sample_labels = FALSE,
-  title = NULL)
+sampleEnrichmentDotplot(
+  results_table,
+  p_col = "p.adj",
+  pvalue_threshold = 0.05,
+  selected_genesets = c(),
+  selection_col = "description",
+  sample_id_col = "cluster",
+  sample_levels = NULL,
+  fill_var = "odds.ratio",
+  fill_trans = "log2",
+  fill_colors = c("yellow", "red", "brown"),
+  fill_max_quantile = 1,
+  non_significant_color = "grey90",
+  min_dot_size = 2,
+  max_dot_size = 8,
+  maxl = Inf,
+  rotate_sample_labels = FALSE,
+  title = NULL
+)
 }
 \arguments{
 \item{results_table}{The results table}

@@ -4,11 +4,21 @@
 \alias{sampleEnrichmentHeatmap}
 \title{Draw a heatmap of enriched genesets in all samples}
 \usage{
-sampleEnrichmentHeatmap(results_table, max_rows = 50, min_genes = 2,
-  min_odds_ratio = 1.5, p_col = "p.val", adjust_pvalues = FALSE,
-  padjust_method = "BH", pvalue_threshold = 0.1, maxl = 45,
-  show_common = TRUE, sample_id_col = "cluster", sample_ids = NULL,
-  title = "Enriched gene sets")
+sampleEnrichmentHeatmap(
+  results_table,
+  max_rows = 50,
+  min_genes = 2,
+  min_odds_ratio = 1.5,
+  p_col = "p.val",
+  adjust_pvalues = FALSE,
+  padjust_method = "BH",
+  pvalue_threshold = 0.1,
+  maxl = 45,
+  show_common = TRUE,
+  sample_id_col = "cluster",
+  sample_ids = NULL,
+  title = "Enriched gene sets"
+)
 }
 \arguments{
 \item{results_table}{A \emph{gofisher} multi-sample results table.}

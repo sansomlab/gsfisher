@@ -4,8 +4,11 @@
 \alias{getEntrez}
 \title{Verify input gene id type and return entrez identifiers}
 \usage{
-getEntrez(gene_ids, gene_id_type = c("ensembl", "entrez"),
-  species = c("mm", "hs"))
+getEntrez(
+  gene_ids,
+  gene_id_type = c("ensembl", "entrez"),
+  species = c("mm", "hs")
+)
 }
 \arguments{
 \item{gene_ids}{A character vector of gene identifiers}

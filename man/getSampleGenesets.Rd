@@ -4,8 +4,12 @@
 \alias{getSampleGenesets}
 \title{Get a list of top-genesets by cluster}
 \usage{
-getSampleGenesets(results_table, sort_by = c("p.val", "p.adj",
-  "odds.ratio", "score"), sample_id_col = "cluster", max_rows = 50)
+getSampleGenesets(
+  results_table,
+  sort_by = c("p.val", "p.adj", "odds.ratio", "score"),
+  sample_id_col = "cluster",
+  max_rows = 50
+)
 }
 \arguments{
 \item{sort_by}{The column by which to sort the genesets}

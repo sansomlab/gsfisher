@@ -20,7 +20,7 @@
 #'
 #' @export
 #'
-#' @importFrom biomaRt useEnsembl getBM listAttributes
+#' @importFrom biomaRt listEnsembl useEnsembl getBM listAttributes
 #'
 #' @author Steve Sansom
 #'
@@ -35,6 +35,16 @@ fetchAnnotation <- function(species=c("hs", "mm"),
 {
 
     species <- match.arg(species)
+    message("Fetching annotation for species: ", species)
+
+    message("Ensembl information:")
+    print(listEnsembl())
+
+    if(is.null(ensembl_version)) {
+      ensembl_version_string = "latest"
+    } else { ensembl_version_string = ensembl_version }
+
+    message("Ensembl version that will be retrieved: ", ensembl_version_string)
 
     if (species == "hs") {
         message("Using human biomart ...")
@@ -46,6 +56,8 @@ fetchAnnotation <- function(species=c("hs", "mm"),
         dataset <- "mmusculus_gene_ensembl"
         name_col <- "mgi_symbol"
     }
+
+
 
     if(is.null(ensembl_host))
         {

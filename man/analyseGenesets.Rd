@@ -4,9 +4,14 @@
 \alias{analyseGenesets}
 \title{Wrapped to run gene set enrichement on multiple annotation databases}
 \usage{
-analyseGenesets(foreground_ids, background_ids,
-  gene_id_type = c("entrez", "ensembl"), kegg_pathways = NULL,
-  gmt_files = c(), species = c("hs", "mm"))
+analyseGenesets(
+  foreground_ids,
+  background_ids,
+  gene_id_type = c("entrez", "ensembl"),
+  kegg_pathways = NULL,
+  gmt_files = c(),
+  species = c("hs", "mm")
+)
 }
 \arguments{
 \item{foreground_ids}{A list of ENTREZ ids of interest

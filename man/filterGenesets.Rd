@@ -4,10 +4,16 @@
 \alias{filterGenesets}
 \title{Filter a genesets results table}
 \usage{
-filterGenesets(results_table, min_foreground_genes = 3,
-  max_genes_geneset = 500, min_odds_ratio = 2, p_col = "p.val",
-  padjust_method = "BH", use_adjusted_pvalues = TRUE,
-  pvalue_threshold = 0.05)
+filterGenesets(
+  results_table,
+  min_foreground_genes = 3,
+  max_genes_geneset = 500,
+  min_odds_ratio = 2,
+  p_col = "p.val",
+  padjust_method = "BH",
+  use_adjusted_pvalues = TRUE,
+  pvalue_threshold = 0.05
+)
 }
 \arguments{
 \item{results_table}{A \emph{gofisher} multi-sample results table.}
@@ -28,9 +34,6 @@ across all sample.}
 }
 \description{
 Filter a genesets results table
-}
-\seealso{
-
 }
 \author{
 Steve Sansom
